@@ -5,6 +5,7 @@ public class A1 {
     String name;
     int age;
 
+    private boolean b1;
 
     public String getName() {
         return name;
