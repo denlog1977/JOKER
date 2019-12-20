@@ -30,10 +30,14 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
 
     private long TimeStart = 0, TimeEnd = 0;
     private String ERROR = "";
-    private final String URL = "https://kamaz.ddns.net:10100/testut/hs/ExchangeTFK/query";
+    private String URL = "https://kamaz.ddns.net:10100/testut/hs/ExchangeTFK/query";
     private final String LOG_TAG = "myLogs";
 
     private OkHttpClient client = new OkHttpClient();
+
+    public void setURL(String URL) {
+        this.URL = URL;
+    }
 
     public String getERROR() {
         return ERROR;
@@ -53,6 +57,7 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
 
     @Override
     protected String[][] doInBackground(String... strings) {
+
         String[][] resultString = new String[0][0];
         String LOGIN = "";
         String PASSWORD = "";
@@ -187,5 +192,4 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
             ERROR = "Не верный запрос";
         }
     }
-
 }
