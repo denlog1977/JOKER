@@ -3,7 +3,9 @@ package ru.it4u24.joker;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,13 +13,16 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    SharedPreferences sPref;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main);
 
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+
 
 
     }
@@ -39,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(intent, 1);
 //            return true;
         } else if (id == R.id.action_firebase) {
-            Intent intentNotes = new Intent(MainActivity.this, FirebaseActivity.class);
+            Intent intentNotes = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intentNotes);
 //            return true;
         }
@@ -47,5 +52,21 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void getPrefService1c() {
+        sPref = getPreferences(MODE_PRIVATE);
+        //sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
+        String service1cLog = sPref.getString("service1cLog", "");
+        String service1cPas = sPref.getString("service1cPas", "");
+        //Toast.makeText(this, "Текст установлен", Toast.LENGTH_SHORT).show();
+    }
 
+    private void setPrefService1c() {
+        String SAVED_TEXT = "Service1c_log";
+        sPref = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor ed = sPref.edit();
+        ed.putString("service1cLog", "");
+        ed.putString("service1cPas", "");
+        ed.commit();
+        //Toast.makeText(this, "Текст сохранен", Toast.LENGTH_SHORT).show();
+    }
 }
