@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">JOKER</string>
+    <string name="settings">Настройкм</string>
+    <string name="firebase">Firebase</string>
+
 </resources>

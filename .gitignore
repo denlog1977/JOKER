@@ -14,3 +14,4 @@
 .externalNativeBuild
 .cxx
 /.idea/vcs.xml
+/app/google-services.json
