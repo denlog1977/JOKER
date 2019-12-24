@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -58,9 +59,12 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
     @Override
     protected String[][] doInBackground(String... strings) {
 
+        Preferences preferences = new Preferences();
+        Map map = preferences.getPrefService1c();
+
         String[][] resultString = new String[0][0];
-        String LOGIN = "";
-        String PASSWORD = "";
+        String LOGIN = map.get("service1cLog").toString();
+        String PASSWORD = map.get("service1cPas").toString();
         String query = strings[0];
 
         try {

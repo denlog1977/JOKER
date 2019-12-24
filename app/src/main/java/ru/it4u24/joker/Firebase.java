@@ -63,9 +63,9 @@ public class Firebase {
         //return result;
     }
 
-    public String[] getServise() {
+    public void setServise() {
 
-        final String[] resultat = {"0", "0"};
+        //final String[] resultat = {"0", "0"};
         Log.d(LOG_TAG, "mDatabase начало");
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.addValueEventListener(new ValueEventListener() {
@@ -76,8 +76,12 @@ public class Firebase {
                 String valueLog = master1c.child("log").getValue(String.class);
                 String valuePas = master1c.child("pas").getValue(String.class);
                 Log.d(LOG_TAG, valueLog);
-                resultat[0] = valueLog;
-                resultat[1] = valuePas;
+                //resultat[0] = valueLog;
+                //resultat[1] = valuePas;
+
+                Preferences preferences = new Preferences();
+                preferences.setPrefService1c(valueLog, valuePas);
+
                 Log.d(LOG_TAG, "mDatabase результат");
             }
 
@@ -87,7 +91,7 @@ public class Firebase {
             }
         });
 
-        Thread t = new Thread(new Runnable() {
+        /*Thread t = new Thread(new Runnable() {
             public void run() {
                 for (int i = 0; resultat[0] == "0" && i <= 10; i++) {
                     try {
@@ -101,7 +105,7 @@ public class Firebase {
         });
         t.start();
 
-        return resultat;
+        return resultat;*/
     }
 
     public void setResult(Boolean result) {

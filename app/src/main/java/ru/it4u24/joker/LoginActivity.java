@@ -38,8 +38,8 @@ public class LoginActivity extends AppCompatActivity {
         String service1cLog = sPref.getString("service1cLog", "");
         Log.d("myLogs", "LoginActivity:service1cLog = " + service1cLog);
 
-        Firebase firebase = new Firebase();
-        String[] getServise = firebase.getServise();
+        //Firebase firebase = new Firebase();
+        //String[] getServise = firebase.getServise();
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override

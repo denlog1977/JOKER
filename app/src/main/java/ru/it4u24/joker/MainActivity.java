@@ -24,8 +24,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        getPrefService1c();
-        setPrefService1c();
+        //getPrefService1c();
+        //setPrefService1c();
+        Firebase firebase = new Firebase();
+        firebase.setServise();
     }
 
     @Override
