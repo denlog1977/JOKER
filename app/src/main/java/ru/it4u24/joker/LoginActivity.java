@@ -2,7 +2,10 @@ package ru.it4u24.joker;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -29,6 +32,11 @@ public class LoginActivity extends AppCompatActivity {
         if (!isUserNameEmail) {
             usernameEditText.setHint(R.string.prompt_username);
         }
+
+        //SharedPreferences sPref = getPreferences(MODE_PRIVATE);
+        SharedPreferences sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
+        String service1cLog = sPref.getString("service1cLog", "");
+        Log.d("myLogs", "LoginActivity:service1cLog = " + service1cLog);
 
         Firebase firebase = new Firebase();
         String[] getServise = firebase.getServise();
