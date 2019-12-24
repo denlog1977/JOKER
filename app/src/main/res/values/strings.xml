@@ -2,6 +2,7 @@
     <string name="app_name">JOKER</string>
     <string name="settings">Настройкм</string>
     <string name="firebase">Firebase</string>
+    <string name="queue">Электронная очередь</string>
     <string name="title_activity_login">Вход в систему</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_username">Логин</string>

@@ -44,9 +44,12 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(intent, 1);
 //            return true;
         } else if (id == R.id.action_firebase) {
-            Intent intentNotes = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intentNotes);
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
 //            return true;
+        } else if (id == R.id.action_firebase) {
+            Intent intent = new Intent(MainActivity.this, QueueActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
