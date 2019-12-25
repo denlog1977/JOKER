@@ -94,17 +94,9 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
         return resultString;
     }
 
-    private SSLSocketFactory sslSocket() {
-        X509TrustManager trustManager;
-        TrustManager[] trustManagers;
+    private SSLSocketFactory sslSocket(X509TrustManager trustManager) {
         SSLSocketFactory sslSocketFactory;
         try {
-            trustManagers = new TrustManager[]{new SSLConnection._FakeX509TrustManager()};
-            trustManager = (X509TrustManager) trustManagers[0];
-
-            //if (trustManagers == null) {
-            //    trustManagers = new TrustManager[]{new SSLConnection._FakeX509TrustManager()};
-            //}
             SSLContext sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, new TrustManager[] { trustManager }, new SecureRandom());
             sslSocketFactory = sslContext.getSocketFactory();
@@ -115,7 +107,16 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
         return sslSocketFactory;
     }
 
+    private X509TrustManager x509TrustManager() {
+        TrustManager[] trustManagers;
+        trustManagers = new TrustManager[]{new SSLConnection._FakeX509TrustManager()};
+        return (X509TrustManager) trustManagers[0];
+    }
+
     private void Authenticate(final String login, final String password) {
+
+        final X509TrustManager trustManager = x509TrustManager();
+
         client = new OkHttpClient.Builder()
                 .readTimeout(300, TimeUnit.SECONDS)
                 .hostnameVerifier(new HostnameVerifier() {
@@ -124,14 +125,13 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
                         return true;
                     }
                 })
-                .sslSocketFactory(sslSocket())
+                .sslSocketFactory(sslSocket(trustManager), trustManager)
                 .authenticator(new Authenticator() {
                     @Override
                     public Request authenticate(Route route, Response response) throws IOException {
                         if (response.request().header("Authorization") != null) {
                             return null; // Give up, we've already attempted to authenticate.
                         }
-
                         //System.out.println("Authenticating for response: " + response);
                         //System.out.println("Challenges: " + response.challenges());
                         String credential = Credentials.basic(login, password);

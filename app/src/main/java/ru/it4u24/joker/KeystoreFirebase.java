@@ -57,22 +57,29 @@ public class KeystoreFirebase implements Keystore {
                 DataSnapshot master1c = dataSnapshot.child("master1c");
                 login = master1c.child("log").getValue(String.class);
                 password = master1c.child("pas").getValue(String.class);
-                Log.d(LOG_TAG, "Firebase login master1c" + login);
+                Log.d(LOG_TAG, "Firebase login master1c=" + login);
 
                 KeystoreSharedPreferences myPref = App.getKeystoreSharedPreferens();
                 String prefLog = myPref.getLogin(myPref.KEY_LOG_SERVICE1C);
                 String prefPas = myPref.getPassword(myPref.KEY_PAS_SERVICE1C);
 
-                if (login == prefLog && password == prefPas) return;
+                Log.d(LOG_TAG, "login=" + login + "=" + prefLog + " && password=" + password + "=" + prefPas);
+                Log.d(LOG_TAG, "login==prefLog=" + login.equals(prefLog) + " && password==prefPas=" + password.equals(prefPas));
+
+                if (login.equals(prefLog) && password.equals(prefPas)) return;
 
                 myPref.setLoginPasswordService1c(login, password);
                 Log.d(LOG_TAG, "Установлен логин и пароль в SharedPreferens из Firebase");
-            }
+             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Log.d(LOG_TAG, "Failed to read value.", databaseError.toException());
             }
         });
+    }
+
+    private static boolean equally(String str1, String str2) {
+        return str1 == null ? str2 == null : str1.equals(str2);
     }
 }

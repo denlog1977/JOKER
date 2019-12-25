@@ -3,18 +3,23 @@ package ru.it4u24.joker;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
     //private SharedPreferences sPref;
+    private final String LOG_TAG = "myLogs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,12 +29,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        //getPrefService1c();
-        //setPrefService1c();
-        //Firebase firebase = new Firebase();
-        //firebase.setServise(this);
+
         KeystoreFirebase keystoreFirebase = App.getKeystoreDatabaseReference();
         keystoreFirebase.runService();
+
+        new Thread(myThread).start();
     }
 
     @Override
@@ -60,23 +64,49 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-//    private void getPrefService1c() {
-//        //sPref = getPreferences(MODE_PRIVATE);
-//        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
-//        String service1cLog = sPref.getString("service1cLog", "");
-//        String service1cPas = sPref.getString("service1cPas", "");
-//        //Toast.makeText(this, "Текст установлен", Toast.LENGTH_SHORT).show();
-//        Log.d("myLogs", "Получено service1cLog=" + service1cLog);
-//    }
-//
-//    private void setPrefService1c() {
-//        //sPref = getPreferences(MODE_PRIVATE);
-//        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
-//        SharedPreferences.Editor ed = sPref.edit();
-//        ed.putString("service1cLog", "1");
-//        ed.putString("service1cPas", "2");
-//        ed.commit();
-//        //Toast.makeText(this, "Текст сохранен", Toast.LENGTH_SHORT).show();
-//        Log.d("myLogs", "Сохранено service1cLog и service1cPas");
-//    }
+    private Runnable myThread = new Runnable() {
+
+        String[][] result;
+        long timeEnd;
+        String ERROR;
+        HttpClient hc;
+
+        @Override
+        public void run() {
+
+            hc = new HttpClient();
+            hc.execute("Organization");//query
+
+            try {
+                Log.d(LOG_TAG, "Try to get result");
+                result = hc.get();
+                Log.d(LOG_TAG, "get returns " + result.length);
+                timeEnd = hc.getTimeEnd();
+            } catch (Exception e) {
+                ERROR = "Exception error: " + e.getMessage();
+                e.printStackTrace();
+                handler.sendEmptyMessage(1);
+                return;
+            }
+
+            ERROR = hc.getERROR();
+
+            //showResult();
+            handler.sendEmptyMessage(1);
+        }
+
+        @SuppressLint("HandlerLeak")
+        Handler handler = new Handler() {
+            public void handleMessage(Message msg) {
+                Log.d(LOG_TAG, "handleMessage = " + msg);
+                if (msg.what == 1) {
+                    //showResult(result, ERROR);
+                    //pbHor.setVisibility(View.GONE);
+                    Toast.makeText(getApplicationContext(),
+                            "Время выполнения " + timeEnd, Toast.LENGTH_LONG).show();
+                    //handler.removeCallbacks(myThread);
+                }
+            }
+        };
+    };
 }
