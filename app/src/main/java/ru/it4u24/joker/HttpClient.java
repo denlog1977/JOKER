@@ -59,13 +59,12 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
     @Override
     protected String[][] doInBackground(String... strings) {
 
-        Preferences preferences = new Preferences();
-        Map map = preferences.getPrefService1c();
+        KeystoreSharedPreferences myPref = App.getKeystoreSharedPreferens();
 
         String[][] resultString = new String[0][0];
-        String LOGIN = map.get("service1cLog").toString();
-        String PASSWORD = map.get("service1cPas").toString();
         String query = strings[0];
+        String LOGIN = myPref.getLogin(myPref.KEY_LOG_SERVICE1C);
+        String PASSWORD = myPref.getPassword(myPref.KEY_PAS_SERVICE1C);
 
         try {
             Authenticate(LOGIN, PASSWORD);

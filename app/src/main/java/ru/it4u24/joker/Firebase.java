@@ -81,14 +81,16 @@ public class Firebase {
                 //resultat[0] = valueLog;
                 //resultat[1] = valuePas;
 
-                Preferences preferences = new Preferences(); /// !!! getSharedPreferences() can only be called after onCreate()
-//                 or If your Prefs class is not an actual Activity but a helper class for accessing preferences, pass a Context object to your methods
+                KeystoreSharedPreferences myPref = App.getKeystoreSharedPreferens();
+                String prefLog = myPref.getLogin(myPref.KEY_LOG_SERVICE1C);
+                String prefPas = myPref.getPassword(myPref.KEY_PAS_SERVICE1C);
 
-                //SharedPreferences preferences = ctx.getSharedPreferences()
+                if (valueLog == prefLog && valuePas == prefPas) return;
 
-                Log.d(LOG_TAG, "getSharedPreferences = " + preferences);
+                myPref.setLoginPasswordService1c(valueLog, valuePas);
 
-                preferences.setPrefService1c(valueLog, valuePas);
+                //Log.d(LOG_TAG, "getSharedPreferences = " + preferences);
+                //preferences.setPrefService1c(valueLog, valuePas);
 
                 Log.d(LOG_TAG, "preferences.setPrefService1c");
 

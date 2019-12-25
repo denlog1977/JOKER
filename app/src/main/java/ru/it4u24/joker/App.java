@@ -3,31 +3,35 @@ package ru.it4u24.joker;
 
 import android.app.Application;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class App extends Application {
 
-    private static KeystoreSharedPreferens keystoreSharedPreferens;
-    private static KeystoreFireBase keystoreFireBase;
+    private static KeystoreSharedPreferences keystoreSharedPreferences;
+    private static KeystoreFirebase keystoreFirebaseAuth;
+    private static KeystoreFirebase keystoreDatabaseReference;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-
-        /* Конкретная реализация выбирается только здесь.
-           Изменением одной строчки здесь,
-           мы заменяем реализацию во всем приложении!
-        */
-
-        keystoreSharedPreferens = new KeystoreSharedPreferens(getSharedPreferences("MyPrefs", MODE_PRIVATE));
-        keystoreFireBase = new KeystoreFireBase(this);
-
+        keystoreSharedPreferences = new KeystoreSharedPreferences(
+                getSharedPreferences("MyPrefs", MODE_PRIVATE));
+        keystoreFirebaseAuth = new KeystoreFirebase(FirebaseAuth.getInstance());
+        keystoreDatabaseReference = new KeystoreFirebase(FirebaseDatabase.getInstance().getReference());
     }
 
-    public static KeystoreSharedPreferens getKeystoreSharedPreferens() {
-        return keystoreSharedPreferens;
-    }
-    public static KeystoreFireBase getKeystore() {
-        return keystoreFireBase;
+    public static KeystoreSharedPreferences getKeystoreSharedPreferens() {
+        return keystoreSharedPreferences;
     }
 
+    public static KeystoreFirebase getKeystoreFirebaseAuth() {
+        return keystoreFirebaseAuth;
+    }
+
+    public static KeystoreFirebase getKeystoreDatabaseReference() {
+        return keystoreDatabaseReference;
+    }
 }

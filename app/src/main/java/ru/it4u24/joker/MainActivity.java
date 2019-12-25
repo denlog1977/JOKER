@@ -14,8 +14,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SharedPreferences sPref;
-
+    //private SharedPreferences sPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,19 +24,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
-        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
-        Log.d("myLogs", "getSharedPreferences");
-
-        String service1cLog = sPref.getString("service1cLog", "");
-        String service1cPas = sPref.getString("service1cPas", "");
-        //Toast.makeText(this, "Текст установлен", Toast.LENGTH_SHORT).show();
-        Log.d("myLogs", "Получено service1cLog=" + service1cLog + "\nservice1cPas=" + service1cPas);
-
-
         //getPrefService1c();
         //setPrefService1c();
-        Firebase firebase = new Firebase();
-        firebase.setServise(this);
+        //Firebase firebase = new Firebase();
+        //firebase.setServise(this);
+        KeystoreFirebase keystoreFirebase = App.getKeystoreDatabaseReference();
+        keystoreFirebase.runService();
     }
 
     @Override

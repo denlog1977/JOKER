@@ -8,18 +8,23 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Preferences extends Activity {
+public class Preferences {
 
     private SharedPreferences sPref;
+    private Context context;
 
-    public void setPrefService1c(String service1cLog, String service1cPas, Context ctx) {
+    public Preferences(Context context) {
+        this.context = context;
+    }
+
+    public void setPrefService1c(String service1cLog, String service1cPas) {
         //sPref = getPreferences(MODE_PRIVATE);
         Map map = getPrefService1c();
         String doservice1cLog = map.get("service1cLog").toString();
         String doservice1cPas = map.get("service1cPas").toString();
         if (service1cLog == doservice1cLog && service1cPas == doservice1cPas) return;
 
-        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
+        sPref = context.getSharedPreferences("mysettings", Context.MODE_PRIVATE);
         SharedPreferences.Editor ed = sPref.edit();
         ed.putString("service1cLog", service1cLog);
         ed.putString("service1cPas", service1cPas);
@@ -29,7 +34,7 @@ public class Preferences extends Activity {
 
     public Map getPrefService1c() {
         //sPref = getPreferences(MODE_PRIVATE);
-        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE, Context ctx);
+        sPref = context.getSharedPreferences("mysettings", Context.MODE_PRIVATE);
         String service1cLog = sPref.getString("service1cLog", "");
         String service1cPas = sPref.getString("service1cPas", "");
         Log.d("myLogs", "Получено service1cLog=" + service1cLog);
