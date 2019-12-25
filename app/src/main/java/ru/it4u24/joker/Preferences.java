@@ -12,7 +12,7 @@ public class Preferences extends Activity {
 
     private SharedPreferences sPref;
 
-    public void setPrefService1c(String service1cLog, String service1cPas) {
+    public void setPrefService1c(String service1cLog, String service1cPas, Context ctx) {
         //sPref = getPreferences(MODE_PRIVATE);
         Map map = getPrefService1c();
         String doservice1cLog = map.get("service1cLog").toString();
@@ -29,7 +29,7 @@ public class Preferences extends Activity {
 
     public Map getPrefService1c() {
         //sPref = getPreferences(MODE_PRIVATE);
-        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
+        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE, Context ctx);
         String service1cLog = sPref.getString("service1cLog", "");
         String service1cPas = sPref.getString("service1cPas", "");
         Log.d("myLogs", "Получено service1cLog=" + service1cLog);

@@ -14,7 +14,8 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    SharedPreferences sPref;
+    private SharedPreferences sPref;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,10 +25,19 @@ public class MainActivity extends AppCompatActivity {
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
+        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
+        Log.d("myLogs", "getSharedPreferences");
+
+        String service1cLog = sPref.getString("service1cLog", "");
+        String service1cPas = sPref.getString("service1cPas", "");
+        //Toast.makeText(this, "Текст установлен", Toast.LENGTH_SHORT).show();
+        Log.d("myLogs", "Получено service1cLog=" + service1cLog + "\nservice1cPas=" + service1cPas);
+
+
         //getPrefService1c();
         //setPrefService1c();
         Firebase firebase = new Firebase();
-        firebase.setServise();
+        firebase.setServise(this);
     }
 
     @Override
@@ -58,23 +68,23 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getPrefService1c() {
-        //sPref = getPreferences(MODE_PRIVATE);
-        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
-        String service1cLog = sPref.getString("service1cLog", "");
-        String service1cPas = sPref.getString("service1cPas", "");
-        //Toast.makeText(this, "Текст установлен", Toast.LENGTH_SHORT).show();
-        Log.d("myLogs", "Получено service1cLog=" + service1cLog);
-    }
-
-    private void setPrefService1c() {
-        //sPref = getPreferences(MODE_PRIVATE);
-        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putString("service1cLog", "1");
-        ed.putString("service1cPas", "2");
-        ed.commit();
-        //Toast.makeText(this, "Текст сохранен", Toast.LENGTH_SHORT).show();
-        Log.d("myLogs", "Сохранено service1cLog и service1cPas");
-    }
+//    private void getPrefService1c() {
+//        //sPref = getPreferences(MODE_PRIVATE);
+//        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
+//        String service1cLog = sPref.getString("service1cLog", "");
+//        String service1cPas = sPref.getString("service1cPas", "");
+//        //Toast.makeText(this, "Текст установлен", Toast.LENGTH_SHORT).show();
+//        Log.d("myLogs", "Получено service1cLog=" + service1cLog);
+//    }
+//
+//    private void setPrefService1c() {
+//        //sPref = getPreferences(MODE_PRIVATE);
+//        sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
+//        SharedPreferences.Editor ed = sPref.edit();
+//        ed.putString("service1cLog", "1");
+//        ed.putString("service1cPas", "2");
+//        ed.commit();
+//        //Toast.makeText(this, "Текст сохранен", Toast.LENGTH_SHORT).show();
+//        Log.d("myLogs", "Сохранено service1cLog и service1cPas");
+//    }
 }

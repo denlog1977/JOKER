@@ -1,5 +1,7 @@
 package ru.it4u24.joker;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -63,7 +65,7 @@ public class Firebase {
         //return result;
     }
 
-    public void setServise() {
+    public void setServise(Context ctx) {
 
         //final String[] resultat = {"0", "0"};
         Log.d(LOG_TAG, "mDatabase начало");
@@ -79,8 +81,17 @@ public class Firebase {
                 //resultat[0] = valueLog;
                 //resultat[1] = valuePas;
 
-                Preferences preferences = new Preferences();
+                Preferences preferences = new Preferences(); /// !!! getSharedPreferences() can only be called after onCreate()
+//                 or If your Prefs class is not an actual Activity but a helper class for accessing preferences, pass a Context object to your methods
+
+                //SharedPreferences preferences = ctx.getSharedPreferences()
+
+                Log.d(LOG_TAG, "getSharedPreferences = " + preferences);
+
                 preferences.setPrefService1c(valueLog, valuePas);
+
+                Log.d(LOG_TAG, "preferences.setPrefService1c");
+
 
                 Log.d(LOG_TAG, "mDatabase результат");
             }
