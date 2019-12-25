@@ -5,9 +5,8 @@ import android.app.Application;
 
 public class App extends Application {
 
-    private static NoteRepository noteRepository;
-    private static Keystore keystore;
-    private static Keystore keystore;
+    private static KeystoreSharedPreferens keystoreSharedPreferens;
+    private static KeystoreFireBase keystoreFireBase;
 
     @Override
     public void onCreate() {
@@ -19,19 +18,16 @@ public class App extends Application {
            мы заменяем реализацию во всем приложении!
         */
 
-        noteRepository = new FileNoteRepository(this); /// Хранение заметок в файле
-        /noteRepository = new SqliteNoteRepository(this); /// Хранение заметок в sqlite
-        keystore = new SimpleKeystore(getSharedPreferences("MyPrefs", MODE_PRIVATE));
-        /keystore = new HashedKeystore(this);
+        keystoreSharedPreferens = new KeystoreSharedPreferens(getSharedPreferences("MyPrefs", MODE_PRIVATE));
+        keystoreFireBase = new KeystoreFireBase(this);
+
     }
 
-    // Возвращаем интерфейс, а не конкретную реализацию!
-    public static NoteRepository getNoteRepository() {
-        return noteRepository;
+    public static KeystoreSharedPreferens getKeystoreSharedPreferens() {
+        return keystoreSharedPreferens;
     }
-    // Возвращаем интерфейс, а не конкретную реализацию!
-    public static Keystore getKeystore() {
-        return keystore;
+    public static KeystoreFireBase getKeystore() {
+        return keystoreFireBase;
     }
 
 }
