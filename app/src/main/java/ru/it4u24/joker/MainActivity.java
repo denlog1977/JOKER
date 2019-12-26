@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         keystoreFirebase.runService();
 
         new Thread(myThread).start();
+        //Keys.service1cLog.getTitle();
     }
 
     @Override

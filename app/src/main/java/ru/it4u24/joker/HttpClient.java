@@ -109,13 +109,14 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
 
     private X509TrustManager x509TrustManager() {
         TrustManager[] trustManagers;
-        trustManagers = new TrustManager[]{new SSLConnection._FakeX509TrustManager()};
+        trustManagers = new TrustManager[]{new SSLConnection.FakeX509TrustManager()};
         return (X509TrustManager) trustManagers[0];
     }
 
     private void Authenticate(final String login, final String password) {
 
         final X509TrustManager trustManager = x509TrustManager();
+        SSLConnection ssl = new SSLConnection();
 
         client = new OkHttpClient.Builder()
                 .readTimeout(300, TimeUnit.SECONDS)
