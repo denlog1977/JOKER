@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="rc">
+        <item>Выберите автоцентр</item>
+        <item>ОП РЦ ТФК в г.Вологда</item>
+        <item>ОП РЦ ТФК в г.Йошкар-Ола</item>
+        <item>ОП РЦ ТФК в г.Казань</item>
+        <item>ОП РЦ ТФК в г.Кемерово</item>
+        <item>ОП РЦ ТФК в г.Липецк</item>
+        <item>ОП РЦ ТФК в г.Набережные Челны</item>
+        <item>ОП РЦ ТФК в г.Нижний Новгород</item>
+        <item>ОП РЦ ТФК в г.Ростов-на-Дону</item>
+        <item>ОП РЦ ТФК в г.Ставрополь</item>
+        <item>ОП РЦ ТФК в г.Хабаровск</item>
+    </string-array>
+</resources>

@@ -10,8 +10,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Date;
@@ -28,6 +33,22 @@ public class MainActivity extends AppCompatActivity {
 
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
+
+        ImageView imageView = findViewById(R.id.imageView);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast toast3 = Toast.makeText(MainActivity.this, "", Toast.LENGTH_LONG);
+                toast3.setGravity(Gravity.FILL_HORIZONTAL, 0, 0);
+                ImageView imageToast = new ImageView(MainActivity.this);
+                imageToast.setImageResource(R.drawable.joker4);
+                imageToast.setBackgroundColor(R.color.colorPrimary);
+                LinearLayout toastContainer = (LinearLayout) toast3.getView();
+                toastContainer.addView(imageToast, 0);
+                toast3.show();
+            }
+        });
+
 
 
         KeystoreFirebase keystoreFirebase = App.getKeystoreDatabaseReference();
