@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast toast3 = Toast.makeText(MainActivity.this, "", Toast.LENGTH_LONG);
                 toast3.setGravity(Gravity.FILL_HORIZONTAL, 0, 0);
                 ImageView imageToast = new ImageView(MainActivity.this);
-                imageToast.setImageResource(R.drawable.joker4);
-                imageToast.setBackgroundColor(R.color.colorPrimary);
+                imageToast.setImageResource(R.drawable.joker);
+                //imageToast.setBackgroundColor(R.color.colorPrimary);
                 LinearLayout toastContainer = (LinearLayout) toast3.getView();
                 toastContainer.addView(imageToast, 0);
                 toast3.show();
