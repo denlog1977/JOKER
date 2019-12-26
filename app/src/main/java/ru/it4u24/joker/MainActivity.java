@@ -4,18 +4,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,10 +75,21 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
 
-            hc = new HttpClient();
-            hc.execute("Organization");//query
-
             try {
+                JsonParser jp = new JsonParser();
+                jp.addObject("Data", "Organization");
+                jp.addArrayObject("id", 1);
+                jp.addArrayObject("name", "TFK");
+                jp.addArray(new Date());
+                jp.addObjectArray("Условие");
+                String query = jp.getResult();
+                //query.getBytes()
+                //byte[] bytes = query.getBytes("UTF-8"); //"windows-1251"
+                //String encodeString = Base64.encode(bytes, );
+                Log.d(LOG_TAG, "query = " + query);
+
+                hc = new HttpClient();
+                hc.execute(query);//query
                 Log.d(LOG_TAG, "Try to get result");
                 result = hc.get();
                 Log.d(LOG_TAG, "get returns " + result.length);

@@ -13,7 +13,7 @@
         android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:srcCompat="@drawable/joker4" />
+        app:srcCompat="@drawable/joker" />
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"

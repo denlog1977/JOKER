@@ -4,18 +4,11 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
 import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import okhttp3.Authenticator;
 import okhttp3.Credentials;
@@ -94,28 +87,8 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
         return resultString;
     }
 
-    private SSLSocketFactory sslSocket(X509TrustManager trustManager) {
-        SSLSocketFactory sslSocketFactory;
-        try {
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[] { trustManager }, new SecureRandom());
-            sslSocketFactory = sslContext.getSocketFactory();
-        } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
-        }
-
-        return sslSocketFactory;
-    }
-
-    private X509TrustManager x509TrustManager() {
-        TrustManager[] trustManagers;
-        trustManagers = new TrustManager[]{new SSLConnection.FakeX509TrustManager()};
-        return (X509TrustManager) trustManagers[0];
-    }
-
     private void Authenticate(final String login, final String password) {
 
-        final X509TrustManager trustManager = x509TrustManager();
         SSLConnection ssl = new SSLConnection();
 
         client = new OkHttpClient.Builder()
@@ -126,7 +99,7 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
                         return true;
                     }
                 })
-                .sslSocketFactory(sslSocket(trustManager), trustManager)
+                .sslSocketFactory(ssl.sslSocket(), ssl.x509TrustManager())
                 .authenticator(new Authenticator() {
                     @Override
                     public Request authenticate(Route route, Response response) throws IOException {
@@ -148,7 +121,7 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
 
         RequestBody formBody = new FormBody.Builder()
                 .add("GetList", query)
-                .add("g", "test")
+                //.add("g", "test")
                 .build();
 
         Request request = new Request.Builder()
@@ -184,6 +157,7 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
         int index401 = ERROR.indexOf("code=401");
         int index404 = ERROR.indexOf("code=404");
         int index405 = ERROR.indexOf("code=405");
+        int index500 = ERROR.indexOf("code=500");
         int indexHost = ERROR.indexOf("No address associated with hostname");
         int indexPort = ERROR.indexOf("unexpected url");
         if (index401 > -1) {
@@ -194,6 +168,8 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
             ERROR = "Не определен порт хоста";
         } else if (index404 > -1 || index405 > -1) {
             ERROR = "Не верный запрос";
+        } else if (index500 > -1) {
+            ERROR = "Внутренняя ошибка сервера";
         }
     }
 }

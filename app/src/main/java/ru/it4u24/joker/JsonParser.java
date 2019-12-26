@@ -8,8 +8,12 @@ import org.json.JSONObject;
 
 public class JsonParser {
 
+    private JSONObject resultJson;
+    private JSONArray jsonArray;
+    private final String LOG_TAG = "myLogs";
+
     public String[][] Parser(String response) throws JSONException {
-        final String LOG_TAG = "myLogs";
+
         String[][] resultString;
         JSONObject jsonObject = new JSONObject(response);
         JSONArray ja = jsonObject.getJSONArray("МассивОрганизаций");
@@ -31,5 +35,46 @@ public class JsonParser {
         }
 
         return resultString;
+    }
+
+    public void addObject(String name, Object value) throws JSONException {
+
+        if (resultJson == null) {
+            resultJson = new JSONObject();
+        }
+        resultJson.put(name, value);
+    }
+
+    public void addObjectArray(String name) throws JSONException {
+
+        if (resultJson == null || jsonArray == null) return;
+        resultJson.put(name, jsonArray);
+    }
+
+    public void newArray() {
+        jsonArray = new JSONArray();
+    }
+
+    public void addArray(Object value) {
+
+        if (jsonArray == null) {
+            newArray();
+        }
+        jsonArray.put(value);
+    }
+
+    public void addArrayObject(String name, Object value) throws JSONException {
+
+        if (jsonArray == null) {
+            newArray();
+        }
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(name, value);
+        jsonArray.put(jsonObject);
+    }
+
+    public String getResult() {
+        Log.d(LOG_TAG, "resultJson = " + resultJson.toString());
+        return resultJson.toString();
     }
 }

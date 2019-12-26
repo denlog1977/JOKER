@@ -64,9 +64,12 @@ public class SSLConnection {
 
     public SSLSocketFactory sslSocket() {
         SSLSocketFactory sslSocketFactory;
+        if (trustManagers == null) {
+            trustManagers = new TrustManager[]{new FakeX509TrustManager()};
+        }
         try {
             SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, new TrustManager[] { x509TrustManager() }, new SecureRandom());
+            sslContext.init(null, trustManagers, new SecureRandom());
             sslSocketFactory = sslContext.getSocketFactory();
         } catch (GeneralSecurityException e) {
             throw new RuntimeException(e);
