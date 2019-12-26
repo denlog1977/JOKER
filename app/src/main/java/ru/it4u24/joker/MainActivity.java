@@ -27,9 +27,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-//        TextView textView = findViewById(R.id.textView);
-//        textView.setText(Keys.service1cLog.toString() + " " + Keys.service1cPas.toString());
-
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 

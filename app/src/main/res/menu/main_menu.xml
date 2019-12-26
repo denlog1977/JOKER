@@ -2,7 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="ru.it4u24.joker.MainActivity">
+    tools:context="ru.it4u24.joker.MainActivity"
+    >
 
     <item
         android:id="@+id/action_settings"
