@@ -5,6 +5,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -16,14 +18,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
-    //private SharedPreferences sPref;
     private final String LOG_TAG = "myLogs";
 
     @Override
@@ -38,12 +39,13 @@ public class MainActivity extends AppCompatActivity {
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast toast3 = Toast.makeText(MainActivity.this, "", Toast.LENGTH_LONG);
-                toast3.setGravity(Gravity.FILL_HORIZONTAL, 0, 0);
-                ImageView imageToast = new ImageView(MainActivity.this);
+                Toast toast3 = Toast.makeText(getApplicationContext(), "", Toast.LENGTH_LONG);
+                toast3.setGravity(Gravity.FILL, 0, 0);//FILL_HORIZONTAL
+                ImageView imageToast = new ImageView(getApplicationContext());
                 imageToast.setImageResource(R.drawable.joker);
-                //imageToast.setBackgroundColor(R.color.colorPrimary);
+                imageToast.setBackgroundColor(Color.parseColor("#008577"));//rgb(0, 133, 119)//BLUE
                 LinearLayout toastContainer = (LinearLayout) toast3.getView();
+                toastContainer.setBackgroundColor(Color.GREEN); //Color.TRANSPARENT - прозрачный
                 toastContainer.addView(imageToast, 0);
                 toast3.show();
             }
@@ -102,15 +104,16 @@ public class MainActivity extends AppCompatActivity {
                 jp.addArrayObject("id", 1);
                 jp.addArrayObject("name", "TFK");
                 jp.addArray(new Date());
-                jp.addObjectArray("Условие");
+                jp.addObjectArray("Condition");
                 String query = jp.getResult();
-                //query.getBytes()
-                //byte[] bytes = query.getBytes("UTF-8"); //"windows-1251"
-                //String encodeString = Base64.encode(bytes, );
                 Log.d(LOG_TAG, "query = " + query);
+                //query.getBytes()
+                byte[] bytes = query.getBytes(); //"UTF-8""windows-1251"
+                String encodequery = Base64.encodeToString(bytes, 0);
+                Log.d(LOG_TAG, "encodeString = " + encodequery);
 
                 hc = new HttpClient();
-                hc.execute(query);//query
+                hc.execute(encodequery);//query
                 Log.d(LOG_TAG, "Try to get result");
                 result = hc.get();
                 Log.d(LOG_TAG, "get returns " + result.length);
