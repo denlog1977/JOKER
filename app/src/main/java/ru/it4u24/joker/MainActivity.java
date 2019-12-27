@@ -110,12 +110,13 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(LOG_TAG, "jpResult = " + jpResult);
 
                 byte[] bytes = jpResult.getBytes();
-                String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                //String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                String encodequery = "test";
                 Log.d(LOG_TAG, "encodeString = " + encodequery);
 
-                byte[] bytess = Base64.decode(encodequery, Base64.NO_WRAP);
-                String decodestring = new String(bytess);
-                Log.d(LOG_TAG, "decodeString = " + decodestring);
+                //byte[] bytess = Base64.decode(encodequery, Base64.NO_WRAP);
+                //String decodestring = new String(bytess);
+                //Log.d(LOG_TAG, "decodeString = " + decodestring);
 
                 hc = new HttpClient();
                 hc.execute(encodequery);//query
