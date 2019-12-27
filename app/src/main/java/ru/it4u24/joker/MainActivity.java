@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Base64;
+import android.util.Base64DataException;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -100,17 +101,21 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                 JsonParser jp = new JsonParser();
-                jp.addObject("Data", "Organization");
+                jp.addObject("TipQuery", "Organization");
                 jp.addArrayObject("id", 1);
-                jp.addArrayObject("name", "TFK");
+                jp.addArrayObject("Наименование", "ТФК");
                 jp.addArray(new Date());
-                jp.addObjectArray("Condition");
-                String query = jp.getResult();
-                Log.d(LOG_TAG, "query = " + query);
-                //query.getBytes()
-                byte[] bytes = query.getBytes(); //"UTF-8""windows-1251"
-                String encodequery = Base64.encodeToString(bytes, 0);
+                jp.addObjectArray("ConditionsQuery");
+                String jpResult = jp.getResult();
+                Log.d(LOG_TAG, "jpResult = " + jpResult);
+
+                byte[] bytes = jpResult.getBytes();
+                String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);
                 Log.d(LOG_TAG, "encodeString = " + encodequery);
+
+                byte[] bytess = Base64.decode(encodequery, Base64.NO_WRAP);
+                String decodestring = new String(bytess);
+                Log.d(LOG_TAG, "decodeString = " + decodestring);
 
                 hc = new HttpClient();
                 hc.execute(encodequery);//query

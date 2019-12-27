@@ -43,8 +43,8 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
         spinner = findViewById(R.id.spinner);
         initSpinner();
         mChooseDate = findViewById(R.id.chooseDate);
-        mDateCalendar = findViewById(R.id.dateCalendar);
-        mDateCalendar.setVisibility(View.GONE);
+//        mDateCalendar = findViewById(R.id.dateCalendar);
+//        mDateCalendar.setVisibility(View.GONE);
 
         mChooseDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,24 +56,24 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
             }
         });
 
-        mDateCalendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
-
-            }
-        });
-
-        mDateCalendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
-                mDateTxt = i+"-"+i1+"-"+i2;
-                mChooseDate.setText("Дата: " + mDateTxt);
-                GregorianCalendar gregorianCalendar = new GregorianCalendar();
-                gregorianCalendar.set(i, i1, i2);
-                mDate = gregorianCalendar.getTimeInMillis();
-                calendarView.setVisibility(View.GONE);
-            }
-        });
+//        mDateCalendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+//            @Override
+//            public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
+//
+//            }
+//        });
+//
+//        mDateCalendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+//            @Override
+//            public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
+//                mDateTxt = i+"-"+i1+"-"+i2;
+//                mChooseDate.setText("Дата: " + mDateTxt);
+//                GregorianCalendar gregorianCalendar = new GregorianCalendar();
+//                gregorianCalendar.set(i, i1, i2);
+//                mDate = gregorianCalendar.getTimeInMillis();
+//                calendarView.setVisibility(View.GONE);
+//            }
+//        });
 
     }
 
