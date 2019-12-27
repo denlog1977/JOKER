@@ -2,7 +2,9 @@ package ru.it4u24.joker;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -10,13 +12,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
-public class QueueActivity extends AppCompatActivity {
+public class QueueActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     private Spinner spinner;
     private ArrayList<Rc> rcArrayList;
@@ -46,7 +49,10 @@ public class QueueActivity extends AppCompatActivity {
         mChooseDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDateCalendar.setVisibility(View.VISIBLE);
+                //mDateCalendar.setVisibility(View.VISIBLE);
+
+                DialogFragment datePicker = new DatePickerFragment();
+                datePicker.show(getSupportFragmentManager(), "datePicker");
             }
         });
 
@@ -69,7 +75,14 @@ public class QueueActivity extends AppCompatActivity {
             }
         });
 
+    }
 
+    @Override
+    public void onDateSet(DatePicker view, int year, int month, int day) {
+
+        mDateTxt = "Дата: " + day + "." + (month + 1) + "." + year;
+        Toast.makeText(this, mDateTxt, Toast.LENGTH_LONG).show();
+        mChooseDate.setText(mDateTxt);
     }
 
     private void initSpinner() {
