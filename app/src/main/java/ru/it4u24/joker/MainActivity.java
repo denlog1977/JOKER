@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         String[][] result;
         long timeEnd;
         String ERROR;
-        HttpClient hc;
+        HttpClient httpClient;
 
         @Override
         public void run() {
@@ -102,28 +102,26 @@ public class MainActivity extends AppCompatActivity {
             try {
                 JsonParser jp = new JsonParser();
                 jp.addObject("TipQuery", "Organization");
-                jp.addArrayObject("id", 1);
-                jp.addArrayObject("Наименование", "ТФК");
-                jp.addArray(new Date());
-                jp.addObjectArray("ConditionsQuery");
+                //jp.addArrayObject("id", 0);
+                //jp.addArrayObject("Наименование", "ТФК");
+                //jp.addArray(new Date());
+                //jp.addObjectArray("ConditionsQuery");
                 String jpResult = jp.getResult();
-                Log.d(LOG_TAG, "jpResult = " + jpResult);
 
                 byte[] bytes = jpResult.getBytes();
-                //String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                String encodequery = "test";
+                String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);
                 Log.d(LOG_TAG, "encodeString = " + encodequery);
 
                 //byte[] bytess = Base64.decode(encodequery, Base64.NO_WRAP);
                 //String decodestring = new String(bytess);
                 //Log.d(LOG_TAG, "decodeString = " + decodestring);
 
-                hc = new HttpClient();
-                hc.execute(encodequery);//query
-                Log.d(LOG_TAG, "Try to get result");
-                result = hc.get();
-                Log.d(LOG_TAG, "get returns " + result.length);
-                timeEnd = hc.getTimeEnd();
+                httpClient = new HttpClient();
+                httpClient.execute(encodequery);//query
+                Log.d(LOG_TAG, "Ожидание результата HttpClient");
+                result = httpClient.get();
+                Log.d(LOG_TAG, "Длина результата httpClient=" + result.length);
+                timeEnd = httpClient.getTimeEnd();
             } catch (Exception e) {
                 ERROR = "Exception error: " + e.getMessage();
                 e.printStackTrace();
@@ -131,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
 
-            ERROR = hc.getERROR();
+            ERROR = httpClient.getERROR();
 
             //showResult();
             handler.sendEmptyMessage(1);
