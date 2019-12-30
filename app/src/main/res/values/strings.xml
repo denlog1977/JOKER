@@ -15,4 +15,5 @@
     <string name="invalid_password">Пароль должен быть >5 символов</string>
     <string name="login_failed">"Авторизация не удалась"</string>
     <string name="chooseDate">"Выберите дату"</string>
+    <string name="chooseRc">"Выберите автоцентр"</string>
 </resources>

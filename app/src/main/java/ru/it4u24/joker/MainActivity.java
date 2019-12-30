@@ -3,16 +3,9 @@ package ru.it4u24.joker;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Base64;
-import android.util.Base64DataException;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,12 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-
 public class MainActivity extends AppCompatActivity {
-
-    private final String LOG_TAG = "myLogs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
         KeystoreFirebase keystoreFirebase = App.getKeystoreDatabaseReference();
         keystoreFirebase.runService();
 
-        new Thread(myThread).start();
         //Keys.service1cLog.getTitle();
     }
 
@@ -89,64 +76,4 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private Runnable myThread = new Runnable() {
-
-        String[][] result;
-        long timeEnd;
-        String ERROR;
-        HttpClient httpClient;
-
-        @Override
-        public void run() {
-
-            try {
-                JsonParser jp = new JsonParser();
-                jp.addObject("TipQuery", "Organization");
-                //jp.addArrayObject("id", 0);
-                //jp.addArrayObject("Наименование", "ТФК");
-                //jp.addArray(new Date());
-                //jp.addObjectArray("ConditionsQuery");
-                String jpResult = jp.getResult();
-
-                byte[] bytes = jpResult.getBytes();
-                String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                Log.d(LOG_TAG, "encodeString = " + encodequery);
-
-                //byte[] bytess = Base64.decode(encodequery, Base64.NO_WRAP);
-                //String decodestring = new String(bytess);
-                //Log.d(LOG_TAG, "decodeString = " + decodestring);
-
-                httpClient = new HttpClient();
-                httpClient.execute(encodequery);//query
-                Log.d(LOG_TAG, "Ожидание результата HttpClient");
-                result = httpClient.get();
-                Log.d(LOG_TAG, "Длина результата httpClient=" + result.length);
-                timeEnd = httpClient.getTimeEnd();
-            } catch (Exception e) {
-                ERROR = "Exception error: " + e.getMessage();
-                e.printStackTrace();
-                handler.sendEmptyMessage(1);
-                return;
-            }
-
-            ERROR = httpClient.getERROR();
-
-            //showResult();
-            handler.sendEmptyMessage(1);
-        }
-
-        @SuppressLint("HandlerLeak")
-        Handler handler = new Handler() {
-            public void handleMessage(Message msg) {
-                Log.d(LOG_TAG, "handleMessage = " + msg);
-                if (msg.what == 1) {
-                    //showResult(result, ERROR);
-                    //pbHor.setVisibility(View.GONE);
-                    Toast.makeText(getApplicationContext(),
-                            "Время выполнения " + timeEnd, Toast.LENGTH_LONG).show();
-                    //handler.removeCallbacks(myThread);
-                }
-            }
-        };
-    };
 }

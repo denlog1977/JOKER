@@ -4,8 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,36 +18,40 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.DatePicker;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.GregorianCalendar;
 
 public class QueueActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     private Spinner spinner;
     private ArrayList<Rc> rcArrayList;
-    private CalendarView mDateCalendar;
-    private long mDate;
+//    private CalendarView mDateCalendar;
+//    private long mDate;
     private Button mChooseDate;
     private String mDateTxt;
-
+    private ProgressBar pbSpinner;
+    private final String LOG_TAG = "myLogs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.queue);
 
+        pbSpinner = findViewById(R.id.pbSpinner);
+
+        new Thread(myThread).start();
         initViews();
-
-
     }
 
     private void initViews() {
         spinner = findViewById(R.id.spinner);
-        initSpinner();
+        //initSpinner();
         mChooseDate = findViewById(R.id.chooseDate);
+        mChooseDate.setEnabled(false);
 //        mDateCalendar = findViewById(R.id.dateCalendar);
 //        mDateCalendar.setVisibility(View.GONE);
 
@@ -85,9 +94,9 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
         mChooseDate.setText(mDateTxt);
     }
 
-    private void initSpinner() {
+    private void initSpinner(String[][] args) {
 
-        RcList rcList = new RcList();
+        RcList rcList = new RcList(args);
         rcArrayList = rcList.getRcArrayList();
 
         RcAdapter rcAdapter = new RcAdapter(this, rcArrayList);
@@ -99,6 +108,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if (i !=0 ) {
                     Rc rc = rcArrayList.get(i);
+                    mChooseDate.setEnabled(true);
                     Toast.makeText(QueueActivity.this, "Выбран элемент номер " + i + "\n"+ rc.getName(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -108,5 +118,64 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
         });
     }
 
+
+    private Runnable myThread = new Runnable() {
+
+        String[][] result;
+        long timeEnd;
+        String ERROR;
+        HttpClient httpClient;
+
+        @Override
+        public void run() {
+
+            try {
+                JsonParser jp = new JsonParser();
+                jp.addObject("TipQuery", "Organization");
+                //jp.addArrayObject("id", 0);
+                //jp.addArrayObject("Наименование", "ТФК");
+                //jp.addArray(new Date());
+                //jp.addObjectArray("ConditionsQuery");
+                String jpResult = jp.getResult();
+
+                byte[] bytes = jpResult.getBytes();
+                String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                //Log.d(LOG_TAG, "encodeString = " + encodequery);
+
+                //byte[] bytess = Base64.decode(encodequery, Base64.NO_WRAP);
+                //String decodestring = new String(bytess);
+                //Log.d(LOG_TAG, "decodeString = " + decodestring);
+
+                httpClient = new HttpClient();
+                httpClient.execute(encodequery);//query
+                Log.d(LOG_TAG, "Ожидание результата HttpClient");
+                result = httpClient.get();
+                Log.d(LOG_TAG, "Длина результата httpClient=" + result.length);
+                timeEnd = httpClient.getTimeEnd();
+            } catch (Exception e) {
+                ERROR = "Exception error: " + e.getMessage();
+                e.printStackTrace();
+                handler.sendEmptyMessage(1);
+                return;
+            }
+
+            ERROR = httpClient.getERROR();
+
+            handler.sendEmptyMessage(1);
+        }
+
+        @SuppressLint("HandlerLeak")
+        Handler handler = new Handler() {
+            public void handleMessage(Message msg) {
+                Log.d(LOG_TAG, "handleMessage = " + msg);
+                if (msg.what == 1) {
+                    pbSpinner.setVisibility(View.GONE);
+                    Toast.makeText(getApplicationContext(),
+                            "Время выполнения " + timeEnd, Toast.LENGTH_LONG).show();
+                    initSpinner(result);
+                }
+            }
+        };
+    };
 
 }

@@ -1,17 +1,11 @@
 package ru.it4u24.joker;
 
 import android.content.Context;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -19,12 +13,12 @@ public class RcAdapter extends BaseAdapter {
 
     ArrayList<Rc> rcArrayList;
     LayoutInflater layoutInflater;
-    Context ctx;
+    Context context;
 
     RcAdapter(Context context, ArrayList<Rc> rcList) {
-        ctx = context;
-        rcArrayList = rcList;
-        layoutInflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.context = context;
+        this.rcArrayList = rcList;
+        this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -49,7 +43,7 @@ public class RcAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         View view = convertView;
-        if (view == null) {
+        if (convertView == null) {
             view = layoutInflater.inflate(R.layout.rc_item, parent, false);
         }
         final Rc rc = getRc(position);
@@ -60,5 +54,18 @@ public class RcAdapter extends BaseAdapter {
         return view;
     }
 
-
+    @Override
+    public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        View v;
+        if (position == 0) {
+            TextView tv = new TextView(context);
+            tv.setVisibility(View.GONE);
+            tv.setHeight(0);
+            v = tv;
+            v.setVisibility(View.GONE);
+        }
+        else
+            v = super.getDropDownView(position, null, parent);
+        return v;
+    }
 }

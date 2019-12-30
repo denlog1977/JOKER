@@ -6,6 +6,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+
 public class JsonParser {
 
     private JSONObject resultJson;
@@ -14,27 +18,60 @@ public class JsonParser {
 
     public String[][] Parser(String response) throws JSONException {
 
-        String[][] resultString;
+        String[][] resultString = new String[0][0];
         JSONObject jsonObject = new JSONObject(response);
-        JSONArray ja = jsonObject.getJSONArray("МассивОрганизаций");
+        if (!jsonObject.has("МассивДанных")) {
+            return resultString;
+        }
+        JSONArray jsonArray = jsonObject.getJSONArray("МассивДанных");
+        JSONObject arrayJSONObject = jsonArray.getJSONObject(0);
 
-        resultString = new String[ja.length()][3];
+        resultString = new String[jsonArray.length()][arrayJSONObject.length()];
 
         //resultString[0][1] = jsonObject.getString("Текст");
-        for (int i = 0; i < ja.length(); i++) {
-            JSONObject joOrg = ja.getJSONObject(i);
-            String id = joOrg.getString("ID");
-            String name = joOrg.getString("Наименование");
-            int idfb = joOrg.getInt("IDFb");
+        for (int i = 0; i < jsonArray.length(); i++) {
+            //JSONObject joOrg = jsonArray.getJSONObject(i);
+            //String id = joOrg.getString("ID");
+            //String name = joOrg.getString("Наименование");
+            //int idfb = joOrg.getInt("IDFb");
 
-            resultString[i][0] = id;
-            resultString[i][1] = name;
+            JSONObject jsonObjectColumn = jsonArray.getJSONObject(i);
+            JSONArray keys = jsonObjectColumn.names();
 
-            Log.d(LOG_TAG, "ID = " + id + ", Наименование = " + name +
-                    ", IDFb = " + idfb);
+            for (int c = 0; c < keys.length(); c++) {
+                String key = keys.getString(c);
+                Object value = jsonObjectColumn.get(key);
+
+                resultString[i][c] = value.toString();
+                Log.d(LOG_TAG, "key=value - " + key + "=" + value);
+            }
+
+            //resultString[i][0] = id;
+            //resultString[i][1] = name;
+
+            //Log.d(LOG_TAG, "ID = " + id + ", Наименование = " + name +
+            //        ", IDFb = " + idfb);
         }
 
         return resultString;
+    }
+
+    private static Map<String, Object> convertJSONObjectToHashMap(JSONObject jsonObject) {
+        HashMap<String, Object> map = new HashMap<>();
+        JSONArray keys = jsonObject.names();
+        for (int i = 0; i < keys.length(); ++i) {
+            String key;
+            try {
+                key = keys.getString(i);
+                Object value = jsonObject.get(key);
+                if (value instanceof JSONObject) {
+                    value = convertJSONObjectToHashMap((JSONObject) value);
+                }
+                map.put(key, value);
+            } catch (JSONException e) {
+            }
+        }
+        return map;
     }
 
     public void addObject(String name, Object value) throws JSONException {
