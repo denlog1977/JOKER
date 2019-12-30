@@ -1,7 +1,6 @@
 package ru.it4u24.joker;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class RcList {
 
