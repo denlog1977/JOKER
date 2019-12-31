@@ -9,7 +9,8 @@
         android:id="@+id/ivImg"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_gravity="center_vertical"/>
+        android:layout_gravity="center_vertical"
+        android:visibility="gone" />
 <!--        android:src="@mipmap/ic_launcher" />-->
 
     <LinearLayout

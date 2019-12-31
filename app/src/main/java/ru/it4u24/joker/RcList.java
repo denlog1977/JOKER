@@ -5,13 +5,22 @@ import java.util.ArrayList;
 public class RcList {
 
     ArrayList<Rc> rcArrayList;
+    ArrayList<ElectronicQueue> eqArrayList;
 
     public RcList(String[][] args) {
         this.rcArrayList = getRcArrayListFromDataBase(args);
     }
 
+    public RcList(Class T, String[][] args) {
+        this.eqArrayList = getEqArrayListFromDataBase(args);
+    }
+
     public ArrayList<Rc> getRcArrayList() {
         return rcArrayList;
+    }
+
+    public ArrayList<ElectronicQueue> getEqArrayList() {
+        return eqArrayList;
     }
 
     private ArrayList<Rc> getRcArrayListFromDataBase(String[][] args) {
@@ -39,4 +48,21 @@ public class RcList {
 
         return rcArrayListFromDataBase;
     }
+
+    private ArrayList<ElectronicQueue> getEqArrayListFromDataBase(String[][] args) {
+        ArrayList<ElectronicQueue> arrayListFromDataBase = new ArrayList<>();
+
+        //rcArrayListFromDataBase.add(new ElectronicQueue("Выберите автоцентр"));
+
+        for (int i = 0; i < args.length; i++) {
+            //int id = Integer.parseInt(args[i][1]);
+            //int worktime = Integer.parseInt(args[i][3]);
+            //int minut = Integer.parseInt(args[i][4]);
+            //String name =  + " - " + args[i][3];
+            arrayListFromDataBase.add(new ElectronicQueue(args[i][0], args[i][3]));
+        }
+
+        return arrayListFromDataBase;
+    }
+
 }

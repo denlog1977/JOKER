@@ -24,6 +24,9 @@ public class JsonParser {
             return resultString;
         }
         JSONArray jsonArray = jsonObject.getJSONArray("МассивДанных");
+        if (jsonArray.length() == 0) {
+            return resultString;
+        }
         JSONObject arrayJSONObject = jsonArray.getJSONObject(0);
 
         resultString = new String[jsonArray.length()][arrayJSONObject.length()];

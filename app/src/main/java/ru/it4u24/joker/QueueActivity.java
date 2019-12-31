@@ -31,11 +31,13 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
     private Spinner spinner;
     private ListView listViewData;
     private ArrayList<Rc> rcArrayList;
+    private ArrayList<ElectronicQueue> eqArrayList;
 //    private CalendarView mDateCalendar;
 //    private long mDate;
     private Button mChooseDate;
     private String mDateTxt;
     private String mDateFormatText;
+    private Integer mIDRc;
     private ProgressBar pbSpinner, pbListData;
     private final String LOG_TAG = "myLogs";
 
@@ -118,6 +120,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                 if (i !=0 ) {
                     Rc rc = rcArrayList.get(i);
                     mChooseDate.setEnabled(true);
+                    mIDRc = rc.getId();
                     Toast.makeText(QueueActivity.this, "Выбран элемент номер " + i + "\n"+ rc.getName(), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -129,12 +132,12 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
 
     private void initListData(String[][] args) {
 
-        /*RcList rcList = new RcList(args);
-        rcArrayList = rcList.getRcArrayList();
+        RcList list = new RcList(ElectronicQueue.class, args);
+        eqArrayList = list.getEqArrayList();
 
-        RcAdapter rcAdapter = new RcAdapter(this, rcArrayList);
+        EqAdapter adapter = new EqAdapter(this, eqArrayList);
 
-        listViewData.setAdapter(rcAdapter);*/
+        listViewData.setAdapter(adapter);
 
         listViewData.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -173,7 +176,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
 
                 byte[] bytes = jpResult.getBytes();
                 String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                //Log.d(LOG_TAG, "encodeString = " + encodequery);
+                Log.d(LOG_TAG, "encodeString = " + encodequery);
 
                 //byte[] bytess = Base64.decode(encodequery, Base64.NO_WRAP);
                 //String decodestring = new String(bytess);
@@ -236,10 +239,9 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                 }*/
                 JsonParser jp = new JsonParser();
                 jp.addObject("TipQuery", "ElectronicQueue");
-                //jp.addArrayObject("Период", mDateFormatText);
-                //jp.addArrayObject("Наименование", "ТФК");
-                //jp.addArray(new Date());
-                //jp.addObjectArray("ConditionsQuery");
+                jp.addArrayObject("Период", mDateFormatText);
+                jp.addArrayObject("ОрганизацияID", mIDRc);
+                jp.addObjectArray("ConditionsQuery");
                 String jpResult = jp.getResult();
 
                 byte[] bytes = jpResult.getBytes();
@@ -263,9 +265,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
             } catch (Exception e) {
                 ERROR = "Exception error: " + e.getMessage();
                 e.printStackTrace();
-                //handler.sendEmptyMessage(1);
-                //return;
-            }
+             }
 
             ERROR = ERROR == null || ERROR.isEmpty() ? httpClient.getERROR() : ERROR;
 
