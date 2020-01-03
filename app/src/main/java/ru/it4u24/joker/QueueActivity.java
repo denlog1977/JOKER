@@ -1,12 +1,11 @@
 package ru.it4u24.joker;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
-import android.graphics.Color;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -14,17 +13,16 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CalendarView;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SimpleAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class QueueActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
@@ -49,7 +47,8 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
         pbSpinner = findViewById(R.id.pbSpinner);
         pbListData = findViewById(R.id.pbListData);
 
-        new Thread(myThread).start();
+        //new Thread(myThread).start();
+        new StartRunnable(this, "Organization");
         initViews();
     }
 
@@ -97,17 +96,19 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
     public void onDateSet(DatePicker view, int year, int month, int day) {
 
         mDateTxt = "Дата: " + day + "." + (month + 1) + "." + year;
-        mDateFormatText = "" + year + "" + (month + 1) + "" + day;
+        String mon = (month < 9 ? "0" : "") + (month + 1);
+        String dy = (day < 10 ? "0" : "") + day;
+        mDateFormatText = "" + year + "" + mon + "" + dy;
         Toast.makeText(this, mDateTxt, Toast.LENGTH_LONG).show();
         mChooseDate.setText(mDateTxt);
 
         pbListData.setVisibility(View.VISIBLE);
-        new MyRunnable();
+        new StartRunnable(this, "ElectronicQueue");
     }
 
     private void initSpinner(String[][] args) {
 
-        RcList rcList = new RcList(args);
+        InitList rcList = new InitList(Rc.class, args);
         rcArrayList = rcList.getRcArrayList();
 
         RcAdapter rcAdapter = new RcAdapter(this, rcArrayList);
@@ -132,101 +133,40 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
 
     private void initListData(String[][] args) {
 
-        RcList list = new RcList(ElectronicQueue.class, args);
+        InitList list = new InitList(ElectronicQueue.class, args);
         eqArrayList = list.getEqArrayList();
 
         EqAdapter adapter = new EqAdapter(this, eqArrayList);
 
         listViewData.setAdapter(adapter);
 
-        listViewData.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        listViewData.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
-                /*Rc rc = rcArrayList.get(i);
-                mChooseDate.setEnabled(true);
-                Toast.makeText(QueueActivity.this, "Выбран элемент номер " + i + "\n"+ rc.getName(), Toast.LENGTH_SHORT).show();*/
-
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ElectronicQueue eq = eqArrayList.get(position);
+                Toast.makeText(QueueActivity.this,
+                        "Выбран элемент номер " + position + "\n"+ eq.getTime(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-
-    private Runnable myThread = new Runnable() {
-
-        String[][] result;
-        long timeEnd;
-        String ERROR;
-        HttpClient httpClient;
-
-        @Override
-        public void run() {
-
-            try {
-                JsonParser jp = new JsonParser();
-                jp.addObject("TipQuery", "Organization");
-                //jp.addArrayObject("id", 0);
-                //jp.addArrayObject("Наименование", "ТФК");
-                //jp.addArray(new Date());
-                //jp.addObjectArray("ConditionsQuery");
-                String jpResult = jp.getResult();
-
-                byte[] bytes = jpResult.getBytes();
-                String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);
-                Log.d(LOG_TAG, "encodeString = " + encodequery);
-
-                //byte[] bytess = Base64.decode(encodequery, Base64.NO_WRAP);
-                //String decodestring = new String(bytess);
-                //Log.d(LOG_TAG, "decodeString = " + decodestring);
-
-                httpClient = new HttpClient();
-                httpClient.execute(encodequery);//query
-                Log.d(LOG_TAG, "Ожидание результата HttpClient");
-                result = httpClient.get();
-                Log.d(LOG_TAG, "Длина результата httpClient=" + result.length);
-                timeEnd = httpClient.getTimeEnd();
-            } catch (Exception e) {
-                ERROR = "Exception error: " + e.getMessage();
-                e.printStackTrace();
-                handler.sendEmptyMessage(1);
-                return;
-            }
-
-            ERROR = httpClient.getERROR();
-
-            handler.sendEmptyMessage(1);
-        }
-
-        @SuppressLint("HandlerLeak")
-        Handler handler = new Handler() {
-            public void handleMessage(Message msg) {
-                Log.d(LOG_TAG, "handleMessage = " + msg);
-                if (msg.what == 1) {
-                    pbSpinner.setVisibility(View.GONE);
-                    Toast.makeText(getApplicationContext(),
-                            "Время выполнения " + timeEnd, Toast.LENGTH_LONG).show();
-                    initSpinner(result);
-                }
-            }
-        };
-    };
-
-    private class MyRunnable implements Runnable {
+    private class StartRunnable implements Runnable {
 
         Thread thread;
         String[][] result;
         long timeEnd;
         String ERROR;
         HttpClient httpClient;
+        Context context;
+        String name;
 
         // Конструктор
-        MyRunnable() {
-            // Создаём новый второй поток
-            thread = new Thread(this, "Поток для примера");
-            Log.d(LOG_TAG, "Создан второй поток " + thread);
+        StartRunnable(Context context, String name) {
+            // Создаём новый поток
+            this.context = context;
+            this.name = name;
+            thread = new Thread(this, name);
+            Log.d(LOG_TAG, "Создан новый поток " + thread);
             thread.start(); // Запускаем поток
         }
 
@@ -238,10 +178,15 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                     Thread.sleep(500);
                 }*/
                 JsonParser jp = new JsonParser();
-                jp.addObject("TipQuery", "ElectronicQueue");
-                jp.addArrayObject("Период", mDateFormatText);
-                jp.addArrayObject("ОрганизацияID", mIDRc);
-                jp.addObjectArray("ConditionsQuery");
+                jp.addObject("TipQuery", name);
+                if (name == "Organization") {
+
+                } else if (name == "ElectronicQueue") {
+                    jp.addArrayObject("Период", mDateFormatText);
+                    jp.addArrayObject("ОрганизацияID", mIDRc);
+                    jp.addObjectArray("ConditionsQuery");
+                }
+
                 String jpResult = jp.getResult();
 
                 byte[] bytes = jpResult.getBytes();
@@ -260,7 +205,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                 timeEnd = httpClient.getTimeEnd();
 
             } catch (InterruptedException e) {
-                Log.d(LOG_TAG, "Второй поток прерван");
+                Log.d(LOG_TAG, "Поток прерван");
                 ERROR = "InterruptedException error: " + e.getMessage();
             } catch (Exception e) {
                 ERROR = "Exception error: " + e.getMessage();
@@ -277,14 +222,21 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
             public void handleMessage(Message msg) {
                 Log.d(LOG_TAG, "handleMessage = " + msg);
                 if (msg.what == 1) {
-                    //pbSpinner.setVisibility(View.GONE);
-                    pbListData.setVisibility(View.GONE);
-                    Toast.makeText(getApplicationContext(),
+
+                    Toast.makeText(context,
                             "Время выполнения " + timeEnd, Toast.LENGTH_LONG).show();
-                    //initSpinner(result);
-                    initListData(result);
+
+                    if (name == "Organization") {
+                        pbSpinner.setVisibility(View.GONE);
+                        initSpinner(result);
+                    } else if (name == "ElectronicQueue") {
+                        pbListData.setVisibility(View.GONE);
+                        initListData(result);
+                    }
+
                 }
             }
         };
     }
+
 }
