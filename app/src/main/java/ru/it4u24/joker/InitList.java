@@ -1,28 +1,33 @@
 package ru.it4u24.joker;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class InitList {
 
-    ArrayList<Rc> rcArrayList;
-    ArrayList<ElectronicQueue> eqArrayList;
+    //ArrayList<Rc> rcArrayList;
+    //ArrayList<ElectronicQueue> eqArrayList;
+    ArrayList<?> arrayList;
 
     public InitList(Class T, String[][] args) {
         if (T == Rc.class) {
-            this.rcArrayList = getRcArrayListFromDataBase(args);
+            //this.rcArrayList = getRcArrayListFromDataBase(args);
+            this.arrayList = getRcArrayListFromDataBase(args);
         } else if (T == ElectronicQueue.class) {
-            this.eqArrayList = getEqArrayListFromDataBase(args);
+            //this.eqArrayList = getEqArrayListFromDataBase(args);
+            this.arrayList = getEqArrayListFromDataBase(args);
         }
     }
 
-    public ArrayList<Rc> getRcArrayList() {
+    /*public ArrayList<Rc> getRcArrayList() {
         return rcArrayList;
-    }
+    }*/
 
-    public ArrayList<ElectronicQueue> getEqArrayList() {
+    /*public ArrayList<ElectronicQueue> getEqArrayList() {
         return eqArrayList;
+    }*/
+
+    public ArrayList<?> getArrayList() {
+        return arrayList;
     }
 
     private ArrayList<Rc> getRcArrayListFromDataBase(String[][] args) {
@@ -42,7 +47,6 @@ public class InitList {
 
     private ArrayList<ElectronicQueue> getEqArrayListFromDataBase(String[][] args) {
         ArrayList<ElectronicQueue> arrayList = new ArrayList<>();
-        //Map<String, Object> m;
 
         for (int i = 0; i < args.length; i++) {
             arrayList.add(new ElectronicQueue(args[i][0], args[i][3]));

@@ -46,4 +46,18 @@
 
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/ibtnDel"
+        android:layout_width="30dp"
+        android:layout_height="match_parent"
+        android:background="@android:drawable/ic_delete"
+        android:visibility="gone" />
+
+    <CheckedTextView
+        android:id="@+id/checkedTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+        android:textAppearance="?android:attr/textAppearanceListItemSmall" />
+
 </LinearLayout>

@@ -7,28 +7,28 @@ import java.util.Locale;
 
 public class ElectronicQueue {
 
-    private String data;
+    private String datetime;
     private String time;
     private String chassis;
     private Date date;
 
-    public ElectronicQueue(String data, String chassis) {
-        this.data = data;
-        this.time = data.substring(11, 16);
+    public ElectronicQueue(String datetime, String chassis) {
+        this.datetime = datetime;
+        this.time = datetime.substring(11, 16);
         this.chassis = chassis;
 
         SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
 
         try {
-            this.date = ft.parse(data);
+            this.date = ft.parse(datetime);
         }catch (ParseException e) {
             System.out.println("Нераспаршена с помощью " + ft);
             e.printStackTrace();
         }
     }
 
-    public String getData() {
-        return data;
+    public String getDatetime() {
+        return datetime;
     }
 
     public Date getDate() {

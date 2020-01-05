@@ -6,6 +6,7 @@ import androidx.fragment.app.DialogFragment;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,19 +18,17 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class QueueActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
     private Spinner spinner;
     private ListView listViewData;
-    private ArrayList<Rc> rcArrayList;
-    private ArrayList<ElectronicQueue> eqArrayList;
+    //private ArrayList<Rc> rcArrayList;
+    //private ArrayList<ElectronicQueue> eqArrayList;
 //    private CalendarView mDateCalendar;
 //    private long mDate;
     private Button mChooseDate;
@@ -109,7 +108,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
     private void initSpinner(String[][] args) {
 
         InitList rcList = new InitList(Rc.class, args);
-        rcArrayList = rcList.getRcArrayList();
+        final ArrayList<Rc> rcArrayList = (ArrayList<Rc>) rcList.getArrayList();
 
         RcAdapter rcAdapter = new RcAdapter(this, rcArrayList);
 
@@ -122,7 +121,8 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                     Rc rc = rcArrayList.get(i);
                     mChooseDate.setEnabled(true);
                     mIDRc = rc.getId();
-                    Toast.makeText(QueueActivity.this, "Выбран элемент номер " + i + "\n"+ rc.getName(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(QueueActivity.this,
+                            "Выбран элемент номер " + i + "\n"+ rc.getName(), Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
@@ -134,7 +134,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
     private void initListData(String[][] args) {
 
         InitList list = new InitList(ElectronicQueue.class, args);
-        eqArrayList = list.getEqArrayList();
+        final ArrayList<ElectronicQueue> eqArrayList = (ArrayList<ElectronicQueue>) list.getArrayList();
 
         EqAdapter adapter = new EqAdapter(this, eqArrayList);
 
@@ -146,6 +146,8 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                 ElectronicQueue eq = eqArrayList.get(position);
                 Toast.makeText(QueueActivity.this,
                         "Выбран элемент номер " + position + "\n"+ eq.getTime(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getApplicationContext(), InputTextList.class);
+                startActivity(intent);
             }
         });
     }
