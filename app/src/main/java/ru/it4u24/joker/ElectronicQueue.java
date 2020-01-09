@@ -11,6 +11,7 @@ public class ElectronicQueue {
     private String time;
     private String chassis;
     private Date date;
+    private boolean enabled;
 
     public ElectronicQueue(String datetime, String chassis) {
         this.datetime = datetime;
@@ -45,6 +46,14 @@ public class ElectronicQueue {
 
     public String getChassis() {
         return chassis;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public void setChassis(String chassis) {

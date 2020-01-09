@@ -30,6 +30,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
     private ListView listViewData;
     //private ArrayList<Rc> rcArrayList;
     //private ArrayList<ElectronicQueue> eqArrayList;
+    private EqAdapter eqAdapter;
 //    private CalendarView mDateCalendar;
 //    private long mDate;
     private Button mChooseDate;
@@ -37,6 +38,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
     private String mDateFormatText;
     private Integer mIDRc;
     private String mUIDRc;
+    private Integer mPositionArrayList;
     private ProgressBar pbSpinner, pbListData;
     private final String LOG_TAG = "myLogs";
 
@@ -142,19 +144,25 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
 
         InitList list = new InitList(ElectronicQueue.class, args);
         final ArrayList<ElectronicQueue> eqArrayList = (ArrayList<ElectronicQueue>) list.getArrayList();
+        eqAdapter = new EqAdapter(this, eqArrayList);
 
-        EqAdapter adapter = new EqAdapter(this, eqArrayList);
-
-        listViewData.setAdapter(adapter);
+        listViewData.setAdapter(eqAdapter);
 
         listViewData.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 ElectronicQueue eq = eqArrayList.get(position);
                 Toast.makeText(QueueActivity.this,
                         "Выбран элемент номер " + position + "\n"+ eq.getTime(), Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getApplicationContext(), InputTextList.class);
-                startActivityForResult(intent, 1);
+
+                if (eq.isEnabled()) {
+                    mPositionArrayList = position;
+                    Intent intent = new Intent(getApplicationContext(), InputTextList.class);
+                    startActivityForResult(intent, 1);
+                } else {
+                    mPositionArrayList = null;
+                }
             }
         });
     }
@@ -164,11 +172,26 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == 1 && data != null) {
+            if (requestCode == 1 && data != null && mPositionArrayList != null) {
+
                 String[] chassis = data.getStringArrayExtra("chassis");
+
+                if (chassis.length == 0) return;
+
+                int position = mPositionArrayList;
+
                 for (String name : chassis) {
                     Log.d(LOG_TAG, "Выбрана шасси: " + name);
+                    if (position < eqAdapter.getCount()) {
+                        ElectronicQueue eq = eqAdapter.getPosition(position);
+                        if (eq.isEnabled()) {
+                            eq.setChassis(name);
+                        }
+                        position = position + 1;
+                    }
+
                 }
+                eqAdapter.notifyDataSetChanged();
             }
         }
     }

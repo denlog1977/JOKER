@@ -69,8 +69,10 @@ public class EqAdapter extends BaseAdapter {
         checkedTextView.setVisibility(View.GONE);
         if (chassis.isEmpty() && !before) {
             tvTime.setTextColor(Color.BLUE);
+            eq.setEnabled(true);
         } else {
             tvTime.setTextColor(Color.GRAY);
+            eq.setEnabled(false);
         }
         return view;
     }
