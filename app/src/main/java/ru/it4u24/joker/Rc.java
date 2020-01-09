@@ -3,12 +3,14 @@ package ru.it4u24.joker;
 public class Rc {
 
     private String name;
+    private String UID;
     private int id;
     private int worktime;
     private int minut;
 
-    public Rc(String name, int id, int worktime, int minut) {
+    public Rc(String name, String UID, int id, int worktime, int minut) {
         this.name = name;
+        this.UID = UID;
         this.id = id;
         this.worktime = worktime;
         this.minut = minut;
@@ -20,6 +22,14 @@ public class Rc {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getUID() {
+        return UID;
+    }
+
+    public void setUID(String UID) {
+        this.UID = UID;
     }
 
     public int getId() {

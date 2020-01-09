@@ -1,5 +1,6 @@
 package ru.it4u24.joker;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
@@ -35,6 +36,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
     private String mDateTxt;
     private String mDateFormatText;
     private Integer mIDRc;
+    private String mUIDRc;
     private ProgressBar pbSpinner, pbListData;
     private final String LOG_TAG = "myLogs";
 
@@ -121,8 +123,13 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                     Rc rc = rcArrayList.get(i);
                     mChooseDate.setEnabled(true);
                     mIDRc = rc.getId();
+                    mUIDRc = rc.getUID();
                     Toast.makeText(QueueActivity.this,
                             "Выбран элемент номер " + i + "\n"+ rc.getName(), Toast.LENGTH_SHORT).show();
+                    if (!mDateFormatText.isEmpty()) {
+                        pbListData.setVisibility(View.VISIBLE);
+                        new StartRunnable(getApplicationContext(), "ElectronicQueue");
+                    }
                 }
             }
             @Override
@@ -147,9 +154,23 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                 Toast.makeText(QueueActivity.this,
                         "Выбран элемент номер " + position + "\n"+ eq.getTime(), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), InputTextList.class);
-                startActivity(intent);
+                startActivityForResult(intent, 1);
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 1 && data != null) {
+                String[] chassis = data.getStringArrayExtra("chassis");
+                for (String name : chassis) {
+                    Log.d(LOG_TAG, "Выбрана шасси: " + name);
+                }
+            }
+        }
     }
 
     private class StartRunnable implements Runnable {

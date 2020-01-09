@@ -33,13 +33,13 @@ public class InitList {
     private ArrayList<Rc> getRcArrayListFromDataBase(String[][] args) {
         ArrayList<Rc> rcArrayListFromDataBase = new ArrayList<>();
 
-        rcArrayListFromDataBase.add(new Rc("Выберите автоцентр", 0,0,0));
+        rcArrayListFromDataBase.add(new Rc("Выберите автоцентр","",0,0,0));
 
         for (int i = 0; i < args.length; i++) {
             int id = Integer.parseInt(args[i][1]);
             int worktime = Integer.parseInt(args[i][3]);
             int minut = Integer.parseInt(args[i][4]);
-            rcArrayListFromDataBase.add(new Rc(args[i][2], id, worktime, minut));
+            rcArrayListFromDataBase.add(new Rc(args[i][2], args[i][0], id, worktime, minut));
         }
 
         return rcArrayListFromDataBase;

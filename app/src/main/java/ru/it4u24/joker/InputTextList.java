@@ -3,6 +3,7 @@ package ru.it4u24.joker;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -29,6 +30,7 @@ public class InputTextList extends AppCompatActivity {
     EditText editText;
     CheckedTextView checkedTextView;
     SimpleAdapter adapter;
+    ListView listView;
     ArrayList<Map<String, Object>> arrayList;
     Map<String, Object> map;
 
@@ -61,7 +63,7 @@ public class InputTextList extends AppCompatActivity {
         arrayList = new ArrayList<>();
         adapter = new MySimpleAdapter(this, arrayList, R.layout.item, from, to);
 
-        ListView listView = findViewById(R.id.lvInputText);
+        listView = findViewById(R.id.lvInputText);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -72,13 +74,12 @@ public class InputTextList extends AppCompatActivity {
 
                 SparseBooleanArray chosen = ((ListView) parent).getCheckedItemPositions();
                 for (int i = 0; i < chosen.size(); i++) {
-                    // если пользователь выбрал пункт списка,
-                    // то выводим его в TextView.
+                    // если пользователь выбрал пункт списка, то устанавливаем его в arrayList.
                     if (chosen.valueAt(i)) {
-                        //selection.append(foods[chosen.keyAt(i)] + " ");
                         Log.d("myLogs", "Выбранные значения: " + chosen.keyAt(i));
                         if (chosen.keyAt(i) == position) {
                             isChosen = true;
+                            break;
                         }
                     }
                 }
@@ -104,6 +105,43 @@ public class InputTextList extends AppCompatActivity {
 
         InputMethodManager keyboard = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    public void onClickDel(View view) {
+
+        if (arrayList.isEmpty()) return;
+
+        SparseBooleanArray chosen = listView.getCheckedItemPositions();
+        for (int i = 0; i < chosen.size(); i++) {
+            // удаляем из списка выбранные значения arrayList
+            if (chosen.valueAt(i)) {
+                Log.d("myLogs", "Удаляется выбранное значение по позиции: " + chosen.keyAt(i));
+                arrayList.remove(chosen.keyAt(i));
+            }
+        }
+
+        adapter.notifyDataSetChanged();
+
+        editText.setText("");
+
+        InputMethodManager keyboard = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    public void onClickОК(View view) {
+
+        //if (arrayList.isEmpty()) return;
+        String[] result = new String[arrayList.size()];
+
+        for (int i = 0; i < arrayList.size() - 1; i++) {
+            result[i] = (String) arrayList.get(i).get(ATTRIBUTE_CHASSIS_TEXT);
+            Log.d("myLogs", "Выбранное значение по позиции: " + i);
+        }
+
+        Intent intent = new Intent();
+        intent.putExtra(ATTRIBUTE_CHASSIS_TEXT, result);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private class MySimpleAdapter extends SimpleAdapter {
