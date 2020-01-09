@@ -133,8 +133,8 @@ public class InputTextList extends AppCompatActivity {
         //if (arrayList.isEmpty()) return;
         String[] result = new String[arrayList.size()];
 
-        for (int i = 0; i < arrayList.size() - 1; i++) {
-            result[i] = (String) arrayList.get(i).get(ATTRIBUTE_CHASSIS_TEXT);
+        for (int i = 0; i < arrayList.size(); i++) {
+            result[i] = (String) arrayList.get(i).get(ATTRIBUTE_NAME_TEXT);
             Log.d("myLogs", "Выбранное значение по позиции: " + i);
         }
 

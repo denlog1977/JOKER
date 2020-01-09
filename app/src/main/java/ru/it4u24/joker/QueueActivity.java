@@ -126,7 +126,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                     mUIDRc = rc.getUID();
                     Toast.makeText(QueueActivity.this,
                             "Выбран элемент номер " + i + "\n"+ rc.getName(), Toast.LENGTH_SHORT).show();
-                    if (!mDateFormatText.isEmpty()) {
+                    if (mDateFormatText != null && !mDateFormatText.isEmpty()){
                         pbListData.setVisibility(View.VISIBLE);
                         new StartRunnable(getApplicationContext(), "ElectronicQueue");
                     }
