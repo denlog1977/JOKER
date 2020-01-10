@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.KeyEvent;
@@ -34,9 +36,10 @@ public class InputTextList extends AppCompatActivity {
     ArrayList<Map<String, Object>> arrayList;
     Map<String, Object> map;
 
-    final String ATTRIBUTE_NAME_TEXT = "time";
-    final String ATTRIBUTE_CHASSIS_TEXT = "chassis";
-    final String ATTRIBUTE_DELETE_TEXT = "delete";
+    private final String ATTRIBUTE_NAME_TEXT = "time";
+    private final String ATTRIBUTE_CHASSIS_TEXT = "chassis";
+    private final String ATTRIBUTE_DELETE_TEXT = "delete";
+    private final String LOG_TAG = "myLogs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,7 +79,7 @@ public class InputTextList extends AppCompatActivity {
                 for (int i = 0; i < chosen.size(); i++) {
                     // если пользователь выбрал пункт списка, то устанавливаем его в arrayList.
                     if (chosen.valueAt(i)) {
-                        Log.d("myLogs", "Выбранные значения: " + chosen.keyAt(i));
+                        Log.d(LOG_TAG, "Выбранные значения: " + chosen.keyAt(i));
                         if (chosen.keyAt(i) == position) {
                             isChosen = true;
                             break;
@@ -86,6 +89,23 @@ public class InputTextList extends AppCompatActivity {
 
                 arrayList.get(position).put(ATTRIBUTE_DELETE_TEXT, isChosen);
                 adapter.notifyDataSetChanged();
+            }
+        });
+
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                Log.d(LOG_TAG, "beforeTextChanged: CharSequence=" + s + ", start=" + start + ", count=" + count + ", after=" + after);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.d(LOG_TAG, "onTextChanged: CharSequence=" + s + ", start=" + start + ", count=" + count);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                Log.d(LOG_TAG, "afterTextChanged: CharSequence=" + s);
             }
         });
     }

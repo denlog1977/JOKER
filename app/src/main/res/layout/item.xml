@@ -31,6 +31,7 @@
             android:id="@+id/tvTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_marginLeft="5dp"
             android:text="08:00"
             android:textSize="22sp" />
@@ -43,6 +44,18 @@
             android:layout_marginLeft="10dp"
             android:text="TextView"
             android:textStyle="normal" />
+
+        <EditText
+            android:id="@+id/etChassis"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@android:drawable/editbox_background_normal"
+            android:ems="10"
+            android:focusable="auto"
+            android:inputType="number"
+            android:maxLength="7" />
 
     </LinearLayout>
 
@@ -57,6 +70,7 @@
         android:id="@+id/checkedTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:checkMark="?android:attr/listChoiceIndicatorMultiple"
         android:textAppearance="?android:attr/textAppearanceListItemSmall" />
 
