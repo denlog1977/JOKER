@@ -63,41 +63,75 @@ public class EqAdapter extends BaseAdapter {
         Date date = eq.getDate();
         Date currentDate = new Date();
         boolean before = date.before(currentDate);
-        Log.d(LOG_TAG, "date=" + date.toString() + "=" + before);
+        //Log.d(LOG_TAG, "date=" + date.toString() + "=" + before + ", position=" + position);
 
         TextView tvTime = view.findViewById(R.id.tvTime);
         TextView tvChassis = view.findViewById(R.id.tvChassis);
-        EditText etChassis = view.findViewById(R.id.etChassis);
+        final EditText etChassis = view.findViewById(R.id.etChassis);
         ImageButton ibtnDel = view.findViewById(R.id.ibtnDel);
         CheckedTextView checkedTextView = view.findViewById(R.id.checkedTextView);
         tvTime.setText(eq.getTime());
         tvChassis.setText(chassis);
         ibtnDel.setVisibility(View.GONE);
+        //etChassis.setVisibility(View.INVISIBLE);
         checkedTextView.setVisibility(View.GONE);
+        /*etChassis.removeTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                etChassis.setText(eq.getChassis());
+                Log.d(LOG_TAG, "removeTextChangedListener beforeTextChanged: CharSequence=" + s + ", position=" + position);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });*/
+        etChassis.setVisibility(View.VISIBLE);
+        etChassis.setText(eq.getChassis());
+        //etChassis.setId(position);
         if (chassis.isEmpty() && !before) {
             tvTime.setTextColor(Color.BLUE);
-            etChassis.setVisibility(View.VISIBLE);
-            etChassis.setFocusable(true);
-            eq.setEnabled(true);
 
-            etChassis.addTextChangedListener(new TextWatcher() {
+            //etChassis.setFocusable(true);
+            eq.setEnabled(true);
+            etChassis.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+
+                    if (!hasFocus) {
+                        EditText et = v.findViewById(v.getId());
+                        String s = et.getText().toString();
+                        Log.d(LOG_TAG, "onFocusChange: hasFocus=" + hasFocus + "=" + s + ", position=" + position);
+                        eq.setChassis(s);
+                    }
+                }
+            });
+            /*etChassis.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                    Log.d(LOG_TAG, "beforeTextChanged: CharSequence=" + s + ", start=" + start + ", count=" + count + ", after=" + after);
+                    Log.d(LOG_TAG, "beforeTextChanged: CharSequence=" + s + ", start=" + start + ", count=" + count + ", after=" + after + ", position=" + position);
                 }
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    Log.d(LOG_TAG, "onTextChanged: CharSequence=" + s + ", start=" + start + ", count=" + count);
+                    Log.d(LOG_TAG, "onTextChanged: CharSequence=" + s + ", start=" + start + ", count=" + count + ", position=" + position);
                 }
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    Log.d(LOG_TAG, "afterTextChanged: CharSequence=" + s);
+                    Log.d(LOG_TAG, "afterTextChanged: CharSequence=" + s + ", position=" + position);
                     Log.d(LOG_TAG, "========================================================");
-                    eq.setChassis(s.toString());
+                    if (s != null)
+                        eq.setChassis(s.toString());
                 }
-            });
+            });*/
+
         } else {
             tvTime.setTextColor(Color.GRAY);
             etChassis.setVisibility(View.GONE);
