@@ -76,7 +76,7 @@ public class EqAdapter extends BaseAdapter {
         checkedTextView.setVisibility(View.GONE);
         if (chassis.isEmpty() && !before) {
             tvTime.setTextColor(Color.BLUE);
-            etChassis.setVisibility(View.GONE);
+            etChassis.setVisibility(View.VISIBLE);
             etChassis.setFocusable(true);
             eq.setEnabled(true);
 
@@ -95,6 +95,7 @@ public class EqAdapter extends BaseAdapter {
                 public void afterTextChanged(Editable s) {
                     Log.d(LOG_TAG, "afterTextChanged: CharSequence=" + s);
                     Log.d(LOG_TAG, "========================================================");
+                    eq.setChassis(s.toString());
                 }
             });
         } else {
