@@ -17,6 +17,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText usernameEditText;
     EditText passwordEditText;
     boolean isUserNameEmail;
+    boolean isRegistration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,8 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
         String service1cLog = sPref.getString("service1cLog", "");
         Log.d("myLogs", "LoginActivity:service1cLog = " + service1cLog);
+
+        KeystoreFirebase keystoreFirebase = App.getKeystoreFirebaseAuth();
 
         //Firebase firebase = new Firebase();
         //String[] getServise = firebase.getServise();
@@ -90,4 +93,5 @@ public class LoginActivity extends AppCompatActivity {
     private boolean isPasswordValid(String password) {
         return password != null && password.trim().length() > 5;
     }
+
 }

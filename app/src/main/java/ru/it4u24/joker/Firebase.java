@@ -1,5 +1,6 @@
 package ru.it4u24.joker;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -25,7 +26,7 @@ public class Firebase {
     private DatabaseReference mDatabase;
     Boolean result;
 
-    public void signIn (String email, String password) {
+    public void signIn (String email, String password, Context context) {
 
         //boolean result = false;
 
@@ -40,10 +41,10 @@ public class Firebase {
             e.printStackTrace();
         }*/
         Log.d(LOG_TAG, "Старт авторизации");
-        signInRun(email, password);
+        signInRun(email, password, context);
         //List<>
 
-        Thread t = new Thread(new Runnable() {
+        /*Thread t = new Thread(new Runnable() {
             public void run() {
                 for (int i = 0; result == null && i <= 10; i++) {
                     try {
@@ -55,7 +56,7 @@ public class Firebase {
                 }
             }
         });
-        t.start();
+        t.start();*/
 
         //FirebaseUser user = mAuth.getCurrentUser();
         //result = user != null;
@@ -129,11 +130,12 @@ public class Firebase {
         return result;
     }
 
-    private void signInRun(final String email, final String password) {
+    private void signInRun(final String email, final String password, final Context context) {
 
         mAuth = FirebaseAuth.getInstance();
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener((Activity) context, (OnCompleteListener<AuthResult>) context);
+                /*.addOnCompleteListener((Activity) context, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
@@ -149,6 +151,6 @@ public class Firebase {
                             setResult(false);
                         }
                     }
-                });
+                });*/
     }
 }
