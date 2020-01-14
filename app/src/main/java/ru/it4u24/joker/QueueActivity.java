@@ -183,7 +183,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                 for (String name : chassis) {
                     Log.d(LOG_TAG, "Выбрана шасси: " + name);
                     while (position < eqAdapter.getCount()) {
-                        ElectronicQueue eq = eqAdapter.getPosition(position);
+                        ElectronicQueue eq = eqAdapter.getItemEQ(position);
                         if (eq.isEnabled()) {
                             eq.setChassis(name);
                             position++;

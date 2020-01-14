@@ -40,7 +40,7 @@ public class EqAdapter extends BaseAdapter {
         return arrayList.get(position);
     }
 
-    public ElectronicQueue getPosition(int position) {
+    public ElectronicQueue getItemEQ(int position) {
         return arrayList.get(position);
     }
 
@@ -53,19 +53,28 @@ public class EqAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
 
         final String LOG_TAG = "myLogs";
+        final ViewHolder holder;
 
         View view = convertView;
         if (convertView == null) {
             view = layoutInflater.inflate(R.layout.item, parent, false);
+            holder = new ViewHolder();
+            holder.tvTime = view.findViewById(R.id.tvTime);
+            holder.tvChassis = view.findViewById(R.id.tvChassis);
+            holder.etChassis = view.findViewById(R.id.etChassis);
+            holder.checkedTextView = view.findViewById(R.id.checkedTextView);
+            view.setTag(holder);
+        } else {
+            holder = (ViewHolder) view.getTag();
         }
-        final ElectronicQueue eq = getPosition(position);
+        final ElectronicQueue eq = getItemEQ(position);
         String chassis = eq.getChassis();
         Date date = eq.getDate();
         Date currentDate = new Date();
         boolean before = date.before(currentDate);
         //Log.d(LOG_TAG, "date=" + date.toString() + "=" + before + ", position=" + position);
 
-        TextView tvTime = view.findViewById(R.id.tvTime);
+        /*TextView tvTime = view.findViewById(R.id.tvTime);
         TextView tvChassis = view.findViewById(R.id.tvChassis);
         final EditText etChassis = view.findViewById(R.id.etChassis);
         ImageButton ibtnDel = view.findViewById(R.id.ibtnDel);
@@ -74,7 +83,7 @@ public class EqAdapter extends BaseAdapter {
         tvChassis.setText(chassis);
         ibtnDel.setVisibility(View.GONE);
         //etChassis.setVisibility(View.INVISIBLE);
-        checkedTextView.setVisibility(View.GONE);
+        checkedTextView.setVisibility(View.GONE);*/
         /*etChassis.removeTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -92,27 +101,33 @@ public class EqAdapter extends BaseAdapter {
 
             }
         });*/
-        etChassis.setVisibility(View.VISIBLE);
-        etChassis.setText(eq.getChassis());
-        //etChassis.setId(position);
-        if (chassis.isEmpty() && !before) {
-            tvTime.setTextColor(Color.BLUE);
 
+        holder.tvTime.setText(eq.getTime());
+        holder.tvChassis.setText(chassis);
+        holder.etChassis.setText(chassis);
+        holder.etChassis.setId(position);
+        holder.checkedTextView.setVisibility(View.GONE);
+
+        holder.etChassis.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+
+                if (!hasFocus) {
+                    EditText et = v.findViewById(v.getId());
+                    String s = et.getText().toString();
+                    Log.d(LOG_TAG, "onFocusChange: hasFocus=" + hasFocus + "=" + s + ", position=" + position);
+                    eq.setChassis(s);
+                    //arrayList.get(position).setChassis(s);
+                }
+            }
+        });
+
+        if (chassis.isEmpty() && !before) {
+            holder.tvTime.setTextColor(Color.BLUE);
+            holder.etChassis.setVisibility(View.VISIBLE);
             //etChassis.setFocusable(true);
             eq.setEnabled(true);
-            etChassis.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-
-                    if (!hasFocus) {
-                        EditText et = v.findViewById(v.getId());
-                        String s = et.getText().toString();
-                        Log.d(LOG_TAG, "onFocusChange: hasFocus=" + hasFocus + "=" + s + ", position=" + position);
-                        eq.setChassis(s);
-                    }
-                }
-            });
-            /*etChassis.addTextChangedListener(new TextWatcher() {
+             /*etChassis.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                     Log.d(LOG_TAG, "beforeTextChanged: CharSequence=" + s + ", start=" + start + ", count=" + count + ", after=" + after + ", position=" + position);
@@ -133,10 +148,11 @@ public class EqAdapter extends BaseAdapter {
             });*/
 
         } else {
-            tvTime.setTextColor(Color.GRAY);
-            etChassis.setVisibility(View.GONE);
+            holder.tvTime.setTextColor(Color.GRAY);
+            holder.etChassis.setVisibility(View.INVISIBLE);
             eq.setEnabled(false);
         }
+
         return view;
     }
 
@@ -153,5 +169,12 @@ public class EqAdapter extends BaseAdapter {
         else*/
             v = super.getDropDownView(position, null, parent);
         return v;
+    }
+
+    static class ViewHolder {
+        TextView tvTime;
+        TextView tvChassis;
+        EditText etChassis;
+        CheckedTextView checkedTextView;
     }
 }
