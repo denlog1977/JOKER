@@ -68,7 +68,7 @@ public class EqAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
         final ElectronicQueue eq = getItemEQ(position);
-        String chassis = eq.getChassis();
+        final String chassis = eq.getChassis();
         Date date = eq.getDate();
         Date currentDate = new Date();
         boolean before = date.before(currentDate);
@@ -107,6 +107,7 @@ public class EqAdapter extends BaseAdapter {
         holder.etChassis.setText(chassis);
         holder.etChassis.setId(position);
         holder.checkedTextView.setVisibility(View.GONE);
+        //holder.enabled = chassis.length() < 7 && eq.isEnabled();
 
         holder.etChassis.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -118,12 +119,16 @@ public class EqAdapter extends BaseAdapter {
                     Log.d(LOG_TAG, "onFocusChange: hasFocus=" + hasFocus + "=" + s + ", position=" + position);
                     eq.setChassis(s);
                     //arrayList.get(position).setChassis(s);
+                    if (s.length() == 7) {
+                        eq.setEnabled(false);
+                    }
                 }
             }
         });
-
-        if (chassis.isEmpty() && !before) {
+        //Log.d(LOG_TAG, "holder.enabled=" + holder.enabled + ", position=" + position);
+        if (chassis.isEmpty() && !before || eq.isEnabled()) {
             holder.tvTime.setTextColor(Color.BLUE);
+            holder.tvChassis.setVisibility(View.GONE);
             holder.etChassis.setVisibility(View.VISIBLE);
             //etChassis.setFocusable(true);
             eq.setEnabled(true);
@@ -149,6 +154,7 @@ public class EqAdapter extends BaseAdapter {
 
         } else {
             holder.tvTime.setTextColor(Color.GRAY);
+            holder.tvChassis.setVisibility(View.VISIBLE);
             holder.etChassis.setVisibility(View.INVISIBLE);
             eq.setEnabled(false);
         }
