@@ -11,13 +11,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
 
-    EditText usernameEditText;
-    EditText passwordEditText;
-    boolean isUserNameEmail;
+    private EditText usernameEditText;
+    private EditText passwordEditText;
+    private ProgressBar loadingProgressBar;
+    private Button loginButton;
+    private boolean isUserNameEmail;
     boolean isRegistration;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +30,8 @@ public class LoginActivity extends AppCompatActivity {
 
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
-        final Button loginButton = findViewById(R.id.login);
-        final ProgressBar loadingProgressBar = findViewById(R.id.loading);
+        loginButton = findViewById(R.id.login);
+        loadingProgressBar = findViewById(R.id.loading);
         isUserNameEmail = true;
 
         if (!isUserNameEmail) {
@@ -39,10 +43,6 @@ public class LoginActivity extends AppCompatActivity {
         String service1cLog = sPref.getString("service1cLog", "");
         Log.d("myLogs", "LoginActivity:service1cLog = " + service1cLog);
 
-        KeystoreFirebase keystoreFirebase = App.getKeystoreFirebaseAuth();
-
-        //Firebase firebase = new Firebase();
-        //String[] getServise = firebase.getServise();
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,11 +53,24 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (!isloginDataChanged(username, password)) return;
 
+                loginButton.setEnabled(false);
                 loadingProgressBar.setVisibility(View.VISIBLE);
-                //loginViewModel.login(usernameEditText.getText().toString(),
-                //        passwordEditText.getText().toString());
+
+                KeystoreFirebase keystoreFirebase = App.getKeystoreFirebaseAuth();
+                keystoreFirebase.runSignIn(LoginActivity.this, username, password);
             }
         });
+    }
+
+    public void updateSignIn (boolean successful) {
+        if (successful) {
+            Toast.makeText(this, "Добро пожаловать!", Toast.LENGTH_SHORT).show();
+            finish();
+        } else {
+            Toast.makeText(getApplicationContext(), "Ошибка авторизации!", Toast.LENGTH_SHORT).show();
+        }
+        loadingProgressBar.setVisibility(View.GONE);
+        loginButton.setEnabled(true);
     }
 
     public boolean isloginDataChanged(String username, String password) {

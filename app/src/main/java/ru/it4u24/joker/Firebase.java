@@ -134,8 +134,8 @@ public class Firebase {
 
         mAuth = FirebaseAuth.getInstance();
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener((Activity) context, (OnCompleteListener<AuthResult>) context);
-                /*.addOnCompleteListener((Activity) context, new OnCompleteListener<AuthResult>() {
+                //.addOnCompleteListener((Activity) context, (OnCompleteListener<AuthResult>) context);
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
@@ -144,6 +144,8 @@ public class Firebase {
                             //FirebaseUser user = mAuth.getCurrentUser();
                             //result = true;
                             setResult(true);
+                            LoginActivity ob = new LoginActivity();
+                            ob.isRegistration = true;
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d(LOG_TAG, "Авторизация не пройдена", task.getException());
@@ -151,6 +153,10 @@ public class Firebase {
                             setResult(false);
                         }
                     }
-                });*/
+                });
+    }
+
+    public interface MyCallBack {
+        public void UpdateResult(boolean result);
     }
 }

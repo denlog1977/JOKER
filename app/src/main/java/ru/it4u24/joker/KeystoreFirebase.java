@@ -1,10 +1,14 @@
 package ru.it4u24.joker;
 
 
+import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -77,6 +81,28 @@ public class KeystoreFirebase implements Keystore {
                 Log.d(LOG_TAG, "Failed to read value.", databaseError.toException());
             }
         });
+    }
+
+    public void runSignIn(final Context context, final String email, final String password) {
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(LOG_TAG, "Авторизация пройдена");
+                            //FirebaseUser user = mAuth.getCurrentUser();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.d(LOG_TAG, "Авторизация не пройдена", task.getException());
+                        }
+
+                        LoginActivity loginActivity = (LoginActivity) context;
+                        loginActivity.updateSignIn(task.isSuccessful());
+                    }
+                });
     }
 
     private static boolean equally(String str1, String str2) {
