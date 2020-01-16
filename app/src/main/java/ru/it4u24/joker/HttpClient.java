@@ -99,7 +99,8 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
                         return true;
                     }
                 })
-                .sslSocketFactory(ssl.sslSocket(), ssl.x509TrustManager())
+                //.sslSocketFactory(ssl.sslSocket(), ssl.x509TrustManager()) //4.2.1
+                .sslSocketFactory(ssl.sslSocket())
                 .authenticator(new Authenticator() {
                     @Override
                     public Request authenticate(Route route, Response response) throws IOException {

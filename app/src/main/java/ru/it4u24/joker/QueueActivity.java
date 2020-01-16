@@ -261,6 +261,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
              }
 
             ERROR = ERROR == null || ERROR.isEmpty() ? httpClient.getERROR() : ERROR;
+            Log.d(LOG_TAG, "ERROR=" + ERROR);
 
             handler.sendEmptyMessage(1);
         }
@@ -279,7 +280,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                         initSpinner(result);
                     } else if (name == "ElectronicQueue") {
                         pbListData.setVisibility(View.GONE);
-                        initListData(result);
+                        initListData(result); // переделать выходить ошибка на младших версиях
                     }
 
                 }
