@@ -28,16 +28,10 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
 
     private Spinner spinner;
     private ListView listViewData;
-    //private ArrayList<Rc> rcArrayList;
-    //private ArrayList<ElectronicQueue> eqArrayList;
     private EqAdapter eqAdapter;
-//    private CalendarView mDateCalendar;
-//    private long mDate;
     private Button mChooseDate;
-    private String mDateTxt;
     private String mDateFormatText;
     private Integer mIDRc;
-    private String mUIDRc;
     private Integer mPositionArrayList;
     private ProgressBar pbSpinner, pbListData;
     private final String LOG_TAG = "myLogs";
@@ -50,7 +44,6 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
         pbSpinner = findViewById(R.id.pbSpinner);
         pbListData = findViewById(R.id.pbListData);
 
-        //new Thread(myThread).start();
         new StartRunnable(this, "Organization");
         initViews();
     }
@@ -58,47 +51,23 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
     private void initViews() {
         spinner = findViewById(R.id.spinner);
         listViewData = findViewById(R.id.lvData);
-        //initSpinner();
         mChooseDate = findViewById(R.id.chooseDate);
         mChooseDate.setEnabled(false);
-//        mDateCalendar = findViewById(R.id.dateCalendar);
-//        mDateCalendar.setVisibility(View.GONE);
 
         mChooseDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //mDateCalendar.setVisibility(View.VISIBLE);
 
                 DialogFragment datePicker = new DatePickerFragment();
                 datePicker.show(getSupportFragmentManager(), "datePicker");
             }
         });
-
-//        mDateCalendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-//            @Override
-//            public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
-//
-//            }
-//        });
-//
-//        mDateCalendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-//            @Override
-//            public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
-//                mDateTxt = i+"-"+i1+"-"+i2;
-//                mChooseDate.setText("Дата: " + mDateTxt);
-//                GregorianCalendar gregorianCalendar = new GregorianCalendar();
-//                gregorianCalendar.set(i, i1, i2);
-//                mDate = gregorianCalendar.getTimeInMillis();
-//                calendarView.setVisibility(View.GONE);
-//            }
-//        });
-
     }
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int day) {
 
-        mDateTxt = "Дата: " + day + "." + (month + 1) + "." + year;
+        String mDateTxt = "Дата: " + day + "." + (month + 1) + "." + year;
         String mon = (month < 9 ? "0" : "") + (month + 1);
         String dy = (day < 10 ? "0" : "") + day;
         mDateFormatText = "" + year + "" + mon + "" + dy;
@@ -111,8 +80,8 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
 
     private void initSpinner(String[][] args) {
 
-        InitList rcList = new InitList(Rc.class, args);
-        final ArrayList<Rc> rcArrayList = (ArrayList<Rc>) rcList.getArrayList();
+        InitList rcList = new InitList(args);
+        final ArrayList<Rc> rcArrayList = rcList.getRcArrayList();
 
         RcAdapter rcAdapter = new RcAdapter(this, rcArrayList);
 
@@ -125,7 +94,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                     Rc rc = rcArrayList.get(i);
                     mChooseDate.setEnabled(true);
                     mIDRc = rc.getId();
-                    mUIDRc = rc.getUID();
+                    //mUIDRc = rc.getUID();
                     Toast.makeText(QueueActivity.this,
                             "Выбран элемент номер " + i + "\n"+ rc.getName(), Toast.LENGTH_SHORT).show();
                     if (mDateFormatText != null && !mDateFormatText.isEmpty()){
@@ -142,8 +111,8 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
 
     private void initListData(String[][] args) {
 
-        InitList list = new InitList(ElectronicQueue.class, args);
-        final ArrayList<ElectronicQueue> eqArrayList = (ArrayList<ElectronicQueue>) list.getArrayList();
+        InitList list = new InitList(args);
+        final ArrayList<ElectronicQueue> eqArrayList = list.getEqArrayList();
         eqAdapter = new EqAdapter(this, eqArrayList);
 
         listViewData.setAdapter(eqAdapter);
@@ -176,7 +145,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
 
                 String[] chassis = data.getStringArrayExtra("chassis");
 
-                if (chassis.length == 0) return;
+                if (chassis == null || chassis.length == 0) return;
 
                 int position = mPositionArrayList;
 
@@ -227,13 +196,12 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                 }*/
                 JsonParser jp = new JsonParser();
                 jp.addObject("TipQuery", name);
-                if (name == "Organization") {
-
-                } else if (name == "ElectronicQueue") {
+                if (name.equals("ElectronicQueue")) {
                     jp.addArrayObject("Период", mDateFormatText);
                     jp.addArrayObject("ОрганизацияID", mIDRc);
                     jp.addObjectArray("ConditionsQuery");
-                }
+
+                } //else if (name.equals("Organization"))
 
                 String jpResult = jp.getResult();
 
@@ -275,10 +243,10 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                     Toast.makeText(context,
                             "Время выполнения " + timeEnd, Toast.LENGTH_LONG).show();
 
-                    if (name == "Organization") {
+                    if (name.equals("Organization")) {
                         pbSpinner.setVisibility(View.GONE);
                         initSpinner(result);
-                    } else if (name == "ElectronicQueue") {
+                    } else if (name.equals("ElectronicQueue")) {
                         pbListData.setVisibility(View.GONE);
                         initListData(result); // переделать выходить ошибка на младших версиях
                     }

@@ -4,45 +4,33 @@ import java.util.ArrayList;
 
 public class InitList {
 
-    //ArrayList<Rc> rcArrayList;
-    //ArrayList<ElectronicQueue> eqArrayList;
-    ArrayList<?> arrayList;
+    private String[][] args;
 
-    public InitList(Class T, String[][] args) {
-        if (T == Rc.class) {
-            //this.rcArrayList = getRcArrayListFromDataBase(args);
-            this.arrayList = getRcArrayListFromDataBase(args);
-        } else if (T == ElectronicQueue.class) {
-            //this.eqArrayList = getEqArrayListFromDataBase(args);
-            this.arrayList = getEqArrayListFromDataBase(args);
-        }
+    public InitList(String[][] data) {
+        this.args = data;
     }
 
-    /*public ArrayList<Rc> getRcArrayList() {
-        return rcArrayList;
-    }*/
+    public ArrayList<Rc> getRcArrayList() {
+        return getRcArrayListFromDataBase(args);
+    }
 
-    /*public ArrayList<ElectronicQueue> getEqArrayList() {
-        return eqArrayList;
-    }*/
-
-    public ArrayList<?> getArrayList() {
-        return arrayList;
+    public ArrayList<ElectronicQueue> getEqArrayList() {
+        return getEqArrayListFromDataBase(args);
     }
 
     private ArrayList<Rc> getRcArrayListFromDataBase(String[][] args) {
-        ArrayList<Rc> rcArrayListFromDataBase = new ArrayList<>();
+        ArrayList<Rc> arrayList = new ArrayList<>();
 
-        rcArrayListFromDataBase.add(new Rc("Выберите автоцентр","",0,0,0));
+        arrayList.add(new Rc("Выберите автоцентр","",0,0,0));
 
         for (int i = 0; i < args.length; i++) {
             int id = Integer.parseInt(args[i][1]);
             int worktime = Integer.parseInt(args[i][3]);
             int minut = Integer.parseInt(args[i][4]);
-            rcArrayListFromDataBase.add(new Rc(args[i][2], args[i][0], id, worktime, minut));
+            arrayList.add(new Rc(args[i][2], args[i][0], id, worktime, minut));
         }
 
-        return rcArrayListFromDataBase;
+        return arrayList;
     }
 
     private ArrayList<ElectronicQueue> getEqArrayListFromDataBase(String[][] args) {
