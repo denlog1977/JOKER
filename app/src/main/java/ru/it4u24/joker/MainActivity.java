@@ -42,9 +42,14 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        KeystoreFirebase keystoreFirebase = App.getKeystoreDatabaseReference();
-        keystoreFirebase.runService();
+        KeystoreFirebase keystoreFirebaseData = App.getKeystoreDatabaseReference();
+        keystoreFirebaseData.runService();
+        KeystoreFirebase keystoreFirebaseUser = App.getKeystoreFirebaseAuth();
 
+        if (!keystoreFirebaseUser.isSignInUser()) {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+        }
         //Keys.service1cLog.getTitle();
     }
 

@@ -144,8 +144,8 @@ public class Firebase {
                             //FirebaseUser user = mAuth.getCurrentUser();
                             //result = true;
                             setResult(true);
-                            LoginActivity ob = new LoginActivity();
-                            ob.isRegistration = true;
+                            //LoginActivity ob = new LoginActivity();
+                            //ob.isRegistration = true;
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.d(LOG_TAG, "Авторизация не пройдена", task.getException());

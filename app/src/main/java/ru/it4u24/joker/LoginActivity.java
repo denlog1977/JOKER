@@ -11,12 +11,26 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+
+import ru.tinkoff.decoro.MaskImpl;
+import ru.tinkoff.decoro.parser.PhoneNumberUnderscoreSlotsParser;
+import ru.tinkoff.decoro.parser.UnderscoreDigitSlotsParser;
+import ru.tinkoff.decoro.slots.PredefinedSlots;
+import ru.tinkoff.decoro.slots.Slot;
+import ru.tinkoff.decoro.watchers.FormatWatcher;
+import ru.tinkoff.decoro.watchers.MaskFormatWatcher;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText usernameEditText;
-    private EditText passwordEditText;
+    private TextView loginAsTextView;
+    private TextInputEditText passwordEditText, phoneEditText;
+    private TextInputLayout nameTextInputLayout, phoneTextInputLayout;
     private ProgressBar loadingProgressBar;
     private Button loginButton;
     private boolean isUserNameEmail;
@@ -30,9 +44,18 @@ public class LoginActivity extends AppCompatActivity {
 
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
+        phoneEditText = findViewById(R.id.phone);
         loginButton = findViewById(R.id.login);
         loadingProgressBar = findViewById(R.id.loading);
+        loginAsTextView = findViewById(R.id.tvLogInAs);
+        nameTextInputLayout = findViewById(R.id.tilName);
+        phoneTextInputLayout = findViewById(R.id.tilPhone);
+
         isUserNameEmail = true;
+        isRegistration = false;
+
+        nameTextInputLayout.setVisibility(View.GONE);
+        phoneTextInputLayout.setVisibility(View.GONE);
 
         if (!isUserNameEmail) {
             usernameEditText.setHint(R.string.prompt_username);
@@ -60,6 +83,33 @@ public class LoginActivity extends AppCompatActivity {
                 keystoreFirebase.runSignIn(LoginActivity.this, username, password);
             }
         });
+
+        Slot[] slots = new PhoneNumberUnderscoreSlotsParser().parseSlots("+7 ___-___-__-__");
+        MaskImpl mask = MaskImpl.createTerminated(slots);//PredefinedSlots.RUS_PHONE_NUMBER
+        mask.setHideHardcodedHead(true);
+        FormatWatcher formatWatcher = new MaskFormatWatcher(mask);
+        formatWatcher.installOn(phoneEditText);
+
+        /*FormatWatcher formatWatcher2 = new MaskFormatWatcher(
+                MaskImpl.createTerminated(PredefinedSlots.RUS_PASSPORT)); // маска для серии и номера
+        formatWatcher.installOn(passportEditText);*/
+    }
+
+    public void onClickLoginAs(View view) {
+
+        if (isRegistration) {
+            loginButton.setText(R.string.action_sign_in_short);
+            loginAsTextView.setText("Регистрация");
+            isRegistration = false;
+            nameTextInputLayout.setVisibility(View.GONE);
+            phoneTextInputLayout.setVisibility(View.GONE);
+        } else {
+            loginButton.setText(R.string.action_sign_registration);
+            loginAsTextView.setText("Вход");
+            isRegistration = true;
+            nameTextInputLayout.setVisibility(View.VISIBLE);
+            phoneTextInputLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     public void updateSignIn (boolean successful) {
@@ -106,5 +156,4 @@ public class LoginActivity extends AppCompatActivity {
     private boolean isPasswordValid(String password) {
         return password != null && password.trim().length() > 5;
     }
-
 }
