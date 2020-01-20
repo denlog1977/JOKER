@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
@@ -29,7 +30,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText usernameEditText;
     private TextView loginAsTextView;
-    private TextInputEditText passwordEditText, phoneEditText;
+    private TextInputEditText passwordEditText, nameEditText, phoneEditText;
     private TextInputLayout nameTextInputLayout, phoneTextInputLayout;
     private ProgressBar loadingProgressBar;
     private Button loginButton;
@@ -44,6 +45,7 @@ public class LoginActivity extends AppCompatActivity {
 
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
+        nameEditText = findViewById(R.id.name);
         phoneEditText = findViewById(R.id.phone);
         loginButton = findViewById(R.id.login);
         loadingProgressBar = findViewById(R.id.loading);
@@ -56,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
 
         nameTextInputLayout.setVisibility(View.GONE);
         phoneTextInputLayout.setVisibility(View.GONE);
+        //loginAsTextView.setPaintFlags(loginAsTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG); //Текст с подчеркиванием
 
         if (!isUserNameEmail) {
             usernameEditText.setHint(R.string.prompt_username);
@@ -71,16 +74,23 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                final String username = usernameEditText.getText().toString();
+                final String email = usernameEditText.getText().toString();
                 final String password = passwordEditText.getText().toString();
+                final String phone = phoneEditText.getText().toString();
+                final String name = nameEditText.getText().toString();
 
-                if (!isloginDataChanged(username, password)) return;
+                if (!isloginDataChanged(email, password, name, phone)) return;
 
                 loginButton.setEnabled(false);
                 loadingProgressBar.setVisibility(View.VISIBLE);
 
                 KeystoreFirebase keystoreFirebase = App.getKeystoreFirebaseAuth();
-                keystoreFirebase.runSignIn(LoginActivity.this, username, password);
+
+                if (isRegistration) {
+                    keystoreFirebase.runRegistration(email, password, name, phone);
+                } else {
+                    keystoreFirebase.runSignIn(LoginActivity.this, email, password);
+                }
             }
         });
 
@@ -99,13 +109,13 @@ public class LoginActivity extends AppCompatActivity {
 
         if (isRegistration) {
             loginButton.setText(R.string.action_sign_in_short);
-            loginAsTextView.setText("Регистрация");
+            loginAsTextView.setText(R.string.action_registration);
             isRegistration = false;
             nameTextInputLayout.setVisibility(View.GONE);
             phoneTextInputLayout.setVisibility(View.GONE);
         } else {
             loginButton.setText(R.string.action_sign_registration);
-            loginAsTextView.setText("Вход");
+            loginAsTextView.setText(R.string.action_sign_in);
             isRegistration = true;
             nameTextInputLayout.setVisibility(View.VISIBLE);
             phoneTextInputLayout.setVisibility(View.VISIBLE);
@@ -123,7 +133,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setEnabled(true);
     }
 
-    public boolean isloginDataChanged(String username, String password) {
+    public boolean isloginDataChanged(String username, String password, String name, String phone) {
         if (!isUserNameValid(username)) {
             int iderror = isUserNameEmail ?
                     R.string.invalid_username_email : R.string.invalid_username;
@@ -134,6 +144,12 @@ public class LoginActivity extends AppCompatActivity {
             passwordEditText.setError(getString(R.string.invalid_password));
             return false;
             //loginFormState.setValue(new LoginFormState(null, R.string.invalid_password));
+        } else if (name.trim().isEmpty()) {
+            nameEditText.setError("Заполните имя");
+            return false;
+        } else if (phone.trim().isEmpty()) {
+            phoneEditText.setError("Заполните телефон");
+            return false;
         } else {
             return true;
             //loginFormState.setValue(new LoginFormState(true));

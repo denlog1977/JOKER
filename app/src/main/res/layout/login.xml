@@ -134,8 +134,10 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:onClick="onClickLoginAs"
-        android:text="Регистрация"
-        android:textAllCaps="true"
+        android:text="@string/action_registration"
+        android:textColor="@color/colorAccent"
+        android:textSize="18sp"
+        android:textStyle="bold|italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login" />
