@@ -16,6 +16,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 
@@ -109,7 +110,7 @@ public class KeystoreFirebase implements Keystore {
     }
 
     public void runRegistration (final String email, final String password,
-                                 final String nameuser, final String phone) {
+                                 final String name, final String phone) {
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -118,9 +119,32 @@ public class KeystoreFirebase implements Keystore {
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(LOG_TAG, "Пользователь успешно зарегистрирован");
-                            sendVerificationEmail();
-                            User user = new User(mAuth.getUid(), nameuser, email, phone);
+                            User user = new User(mAuth.getUid(), name, email, phone);
+                            /*mDatabase.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (!dataSnapshot.hasChild("users")) {
+                                        mDatabase.setValue("users");
+                                    }
+                                    if (!dataSnapshot.hasChild(mAuth.getUid()))
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });*/
+                            //mDatabase.updateChildren()
+                            mDatabase = FirebaseDatabase.getInstance().getReference();
                             mDatabase.child("users").child(mAuth.getUid()).setValue(user);
+                            KeystoreSharedPreferences myPref = App.getKeystoreSharedPreferens();
+                            myPref.setString(myPref.KEY_USER_NAME, name);
+                            myPref.setString(myPref.KEY_USER_EMAIL, email);
+                            myPref.setString(myPref.KEY_USER_PHONE, phone);
+                            myPref.setString(myPref.KEY_STATUS_EMAIL, "Новый");
+                            myPref.setString(myPref.KEY_STATUS_PHONE, "Новый");
+
+                            sendVerificationEmail();
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(LOG_TAG, "Не прошла регистрация", task.getException());
@@ -137,10 +161,21 @@ public class KeystoreFirebase implements Keystore {
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
+
+                            KeystoreSharedPreferences myPref = App.getKeystoreSharedPreferens();
+                            String status_email;
+
                             if (task.isSuccessful()) {
+                                status_email = "Отправлено";
                                 Log.w(LOG_TAG, "Регистрация прошла успешно. Письмо с подтверждением отправлено", task.getException());
-                            } else
+                            } else {
+                                status_email = "Не удалось отправить";
                                 Log.w(LOG_TAG, "Не удалось отправить письмо", task.getException());
+                            }
+
+                            mDatabase.child("users").child(mAuth.getUid()).child("statusEmail")
+                                    .setValue(status_email);
+                            myPref.setString(myPref.KEY_STATUS_EMAIL, status_email);
                         }
                     });
         }
@@ -175,6 +210,8 @@ public class KeystoreFirebase implements Keystore {
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser != null ) {
             firebaseUser.reload();
+            //String status_email_base =
+            //String stаtus_email = firebaseUser.isEmailVerified() ? "Подтвержден" : status_email_base;
             String token = firebaseUser.getIdToken(false).toString();
             Log.d(LOG_TAG,
                     "Пользователь вошел в систему как " + firebaseUser.getEmail() +
@@ -193,20 +230,24 @@ public class KeystoreFirebase implements Keystore {
 
     private class User {
 
-        private String username;
-        private String email;
-        private String phone;
-        private String id;
+        public String id;
+        public String name;
+        public String email;
+        public String phone;
+        public String statusEmail;
+        public String statusPhone;
 
         public User() {
             // Default constructor
         }
 
-        public User(String id, String username, String email, String phone) {
+        public User(String id, String name, String email, String phone) {
             this.id = id;
-            this.username = username;
+            this.name = name;
             this.email = email;
             this.phone = phone;
+            this.statusEmail = "Новый";
+            this.statusPhone = "Новый";
         }
 
     }

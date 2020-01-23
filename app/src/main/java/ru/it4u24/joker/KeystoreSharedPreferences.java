@@ -11,6 +11,11 @@ public class KeystoreSharedPreferences implements Keystore {
 
     public final String KEY_LOG_SERVICE1C = "service1cLog";
     public final String KEY_PAS_SERVICE1C = "service1cPas";
+    public final String KEY_USER_NAME = "name";
+    public final String KEY_USER_EMAIL = "email";
+    public final String KEY_USER_PHONE = "phone";
+    public final String KEY_STATUS_EMAIL = "statusEmail";
+    public final String KEY_STATUS_PHONE = "statusPhone";
 
     public KeystoreSharedPreferences(SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
