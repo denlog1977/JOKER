@@ -10,6 +10,7 @@
     <string name="prompt_name">Имя</string>
     <string name="prompt_phone">Телефон</string>
     <string name="action_sign_in"><u>ВХОД</u></string>
+    <string name="action_sign_out"><u>ВЫХОД</u></string>
     <string name="action_sign_registration">Зарегистрируйтесь</string>
     <string name="action_registration"><u>РЕГИСТРАЦИЯ</u></string>
     <string name="action_sign_in_short">Войти в систему</string>

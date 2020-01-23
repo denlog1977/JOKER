@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -29,13 +30,13 @@ import ru.tinkoff.decoro.watchers.MaskFormatWatcher;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText usernameEditText;
-    private TextView loginAsTextView;
+    private TextView loginAsTextView, nameTextView;
     private TextInputEditText passwordEditText, nameEditText, phoneEditText;
     private TextInputLayout nameTextInputLayout, phoneTextInputLayout;
     private ProgressBar loadingProgressBar;
     private Button loginButton;
     private boolean isUserNameEmail;
-    boolean isRegistration;
+    boolean isRegistration, isOut;
 
 
     @Override
@@ -52,9 +53,13 @@ public class LoginActivity extends AppCompatActivity {
         loginAsTextView = findViewById(R.id.tvLogInAs);
         nameTextInputLayout = findViewById(R.id.tilName);
         phoneTextInputLayout = findViewById(R.id.tilPhone);
+        nameTextView = findViewById(R.id.tvName);
+
+        KeystoreFirebase keystoreFirebaseUser = App.getKeystoreFirebaseAuth();
 
         isUserNameEmail = true;
         isRegistration = false;
+        isOut = keystoreFirebaseUser.isSignInUser();
 
         nameTextInputLayout.setVisibility(View.GONE);
         phoneTextInputLayout.setVisibility(View.GONE);
@@ -63,16 +68,22 @@ public class LoginActivity extends AppCompatActivity {
         if (!isUserNameEmail) {
             usernameEditText.setHint(R.string.prompt_username);
         }
+        if (isOut) {
+            loginAsTextView.setText(R.string.action_sign_out);
+            KeystoreSharedPreferences sPref = App.getKeystoreSharedPreferens();
+            nameTextView.setText(sPref.getLogin(sPref.KEY_USER_NAME));
+        }
 
-        //SharedPreferences sPref = getPreferences(MODE_PRIVATE);
         SharedPreferences sPref = getSharedPreferences("mysettings", Context.MODE_PRIVATE);
         String service1cLog = sPref.getString("service1cLog", "");
-        Log.d("myLogs", "LoginActivity:service1cLog = " + service1cLog);
-
+        Log.d("myLogs", "LoginActivity:SharedPreferences:service1cLog = " + service1cLog);
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Скрыть клавиатуру
+                InputMethodManager keyboard = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                keyboard.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 
                 final String email = usernameEditText.getText().toString();
                 final String password = passwordEditText.getText().toString();
@@ -87,15 +98,15 @@ public class LoginActivity extends AppCompatActivity {
                 KeystoreFirebase keystoreFirebase = App.getKeystoreFirebaseAuth();
 
                 if (isRegistration) {
-                    keystoreFirebase.runRegistration(email, password, name, phone);
+                    keystoreFirebase.registration(LoginActivity.this, email, password, name, phone);
                 } else {
-                    keystoreFirebase.runSignIn(LoginActivity.this, email, password);
+                    keystoreFirebase.signIn(LoginActivity.this, email, password);
                 }
             }
         });
 
-        Slot[] slots = new PhoneNumberUnderscoreSlotsParser().parseSlots("+7 ___-___-__-__");
-        MaskImpl mask = MaskImpl.createTerminated(slots);//PredefinedSlots.RUS_PHONE_NUMBER
+        //Slot[] slots = new PhoneNumberUnderscoreSlotsParser().parseSlots("+7 (___) ___-__-__");
+        MaskImpl mask = MaskImpl.createTerminated(PredefinedSlots.RUS_PHONE_NUMBER);
         mask.setHideHardcodedHead(true);
         FormatWatcher formatWatcher = new MaskFormatWatcher(mask);
         formatWatcher.installOn(phoneEditText);
@@ -113,6 +124,12 @@ public class LoginActivity extends AppCompatActivity {
             isRegistration = false;
             nameTextInputLayout.setVisibility(View.GONE);
             phoneTextInputLayout.setVisibility(View.GONE);
+        } else if (isOut) {
+            KeystoreFirebase keystoreFirebase = App.getKeystoreFirebaseAuth();
+            keystoreFirebase.signOut();
+            loginAsTextView.setText(R.string.action_registration);
+            nameTextView.setText("");
+            isOut = false;
         } else {
             loginButton.setText(R.string.action_sign_registration);
             loginAsTextView.setText(R.string.action_sign_in);
@@ -124,7 +141,9 @@ public class LoginActivity extends AppCompatActivity {
 
     public void updateSignIn (boolean successful) {
         if (successful) {
-            Toast.makeText(this, "Добро пожаловать!", Toast.LENGTH_SHORT).show();
+            KeystoreSharedPreferences sPref = App.getKeystoreSharedPreferens();
+            String name = "Добро пожаловать\n" + sPref.getLogin(sPref.KEY_USER_NAME) + "!";
+            Toast.makeText(this, name, Toast.LENGTH_LONG).show();
             finish();
         } else {
             Toast.makeText(getApplicationContext(), "Ошибка авторизации!", Toast.LENGTH_SHORT).show();
@@ -144,10 +163,10 @@ public class LoginActivity extends AppCompatActivity {
             passwordEditText.setError(getString(R.string.invalid_password));
             return false;
             //loginFormState.setValue(new LoginFormState(null, R.string.invalid_password));
-        } else if (name.trim().isEmpty()) {
+        } else if (isRegistration && name.trim().isEmpty()) {
             nameEditText.setError("Заполните имя");
             return false;
-        } else if (phone.trim().isEmpty()) {
+        } else if (isRegistration && phone.trim().length() < 18) {
             phoneEditText.setError("Заполните телефон");
             return false;
         } else {

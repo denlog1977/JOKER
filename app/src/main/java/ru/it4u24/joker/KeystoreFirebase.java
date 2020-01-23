@@ -87,14 +87,15 @@ public class KeystoreFirebase implements Keystore {
         });
     }
 
-    public void runSignIn(final Context context, final String email, final String password) {
+    public void signIn(final Context context, final String email, final String password) {
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
-                        if (task.isSuccessful()) {
+                        boolean successful = task.isSuccessful();
+                        if (successful) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(LOG_TAG, "Авторизация пройдена");
                             //FirebaseUser user = mAuth.getCurrentUser();
@@ -104,38 +105,27 @@ public class KeystoreFirebase implements Keystore {
                         }
 
                         LoginActivity loginActivity = (LoginActivity) context;
-                        loginActivity.updateSignIn(task.isSuccessful());
+                        loginActivity.updateSignIn(successful);
                     }
                 });
     }
 
-    public void runRegistration (final String email, final String password,
+    public void registration (final Context context, final String email, final String password,
                                  final String name, final String phone) {
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
+
+                        boolean successful = task.isSuccessful();
+                        if (successful) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(LOG_TAG, "Пользователь успешно зарегистрирован");
                             User user = new User(mAuth.getUid(), name, email, phone);
-                            /*mDatabase.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    if (!dataSnapshot.hasChild("users")) {
-                                        mDatabase.setValue("users");
-                                    }
-                                    if (!dataSnapshot.hasChild(mAuth.getUid()))
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                }
-                            });*/
-                            //mDatabase.updateChildren()
-                            mDatabase = FirebaseDatabase.getInstance().getReference();
+                            if (mDatabase == null) {
+                                mDatabase = FirebaseDatabase.getInstance().getReference();
+                            }
                             mDatabase.child("users").child(mAuth.getUid()).setValue(user);
                             KeystoreSharedPreferences myPref = App.getKeystoreSharedPreferens();
                             myPref.setString(myPref.KEY_USER_NAME, name);
@@ -144,16 +134,19 @@ public class KeystoreFirebase implements Keystore {
                             myPref.setString(myPref.KEY_STATUS_EMAIL, "Новый");
                             myPref.setString(myPref.KEY_STATUS_PHONE, "Новый");
 
-                            sendVerificationEmail();
+                            sendVerificationEmail(null);
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(LOG_TAG, "Не прошла регистрация", task.getException());
                         }
+
+                        LoginActivity loginActivity = (LoginActivity) context;
+                        loginActivity.updateSignIn(successful);
                     }
                 });
     }
 
-    public void sendVerificationEmail() {
+    public void sendVerificationEmail(final Context context) {
         FirebaseUser user = mAuth.getCurrentUser();
 
         if (user != null) {
@@ -164,10 +157,11 @@ public class KeystoreFirebase implements Keystore {
 
                             KeystoreSharedPreferences myPref = App.getKeystoreSharedPreferens();
                             String status_email;
+                            boolean successful = task.isSuccessful();
 
-                            if (task.isSuccessful()) {
+                            if (successful) {
                                 status_email = "Отправлено";
-                                Log.w(LOG_TAG, "Регистрация прошла успешно. Письмо с подтверждением отправлено", task.getException());
+                                Log.w(LOG_TAG, "Письмо с подтверждением отправлено");
                             } else {
                                 status_email = "Не удалось отправить";
                                 Log.w(LOG_TAG, "Не удалось отправить письмо", task.getException());
@@ -176,8 +170,21 @@ public class KeystoreFirebase implements Keystore {
                             mDatabase.child("users").child(mAuth.getUid()).child("statusEmail")
                                     .setValue(status_email);
                             myPref.setString(myPref.KEY_STATUS_EMAIL, status_email);
+
+                            if (context != null) {
+                                LoginActivity loginActivity = (LoginActivity) context;
+                                loginActivity.updateSignIn(successful);
+                            }
                         }
                     });
+        }
+    }
+
+    public void signOut() {
+
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            mAuth.signOut();
         }
     }
 
@@ -197,7 +204,7 @@ public class KeystoreFirebase implements Keystore {
                         if (task.isSuccessful()) {
                             //Toast.makeText(MainActivity.this,
                             //        "Переавторизация прошла успешно", Toast.LENGTH_SHORT).show();
-                            Log.d(LOG_TAG, "Переавторизация прошла успешно", task.getException());
+                            Log.d(LOG_TAG, "Переавторизация прошла успешно");
                         } else {
                             Log.d(LOG_TAG, "Переавторизация не пройдена", task.getException());
                         }
