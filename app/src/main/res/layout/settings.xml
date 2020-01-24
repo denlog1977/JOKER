@@ -6,47 +6,63 @@
     android:layout_height="match_parent"
     tools:context=".SettingsActivity">
 
-    <TextView
-        android:id="@+id/tvUserName_"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="24dp"
-        android:text="Имя"
-        android:textSize="18sp"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cvPhoto"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardCornerRadius="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivPhoto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:visibility="visible"
+            app:srcCompat="@drawable/joker"
+            tools:ignore="ContentDescription" />
+    </androidx.cardview.widget.CardView>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:src="@drawable/joker"
+        app:civ_border_width="2dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tvUserNameValue"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:text="Имя"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/guideline"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!-- <TextView
+         android:id="@+id/tvUserName_"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_marginStart="16dp"
+         android:layout_marginLeft="16dp"
+         android:layout_marginTop="16dp"
+         android:text="Имя"
+         android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/textViewSettings"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/settings"
-        android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+     <TextView
+         android:id="@+id/tvUserNameValue"
+         android:layout_width="0dp"
+         android:layout_height="wrap_content"
+         android:layout_marginTop="16dp"
+         android:layout_marginEnd="16dp"
+         android:layout_marginRight="16dp"
+         android:text="Имя"
+         android:textSize="18sp" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="137dp" />
+     <TextView
+         android:id="@+id/textViewSettings"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:text="@string/settings"
+         android:textSize="24sp" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
