@@ -7,6 +7,7 @@ import androidx.cardview.widget.CardView;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -22,6 +24,7 @@ import java.io.IOException;
 public class SettingsActivity extends AppCompatActivity {
 
     private ImageView imageView;
+    private KeystoreSharedPreferences sPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +34,13 @@ public class SettingsActivity extends AppCompatActivity {
         imageView = findViewById(R.id.ivPhoto);
         CardView cardView = findViewById(R.id.cvPhoto);
         registerForContextMenu(cardView);
+
+        sPref = App.getKeystoreSharedPreferens();
+        sPref.loadImageFromStorage(imageView, R.drawable.joker);
+
+        TextView textViewName = findViewById(R.id.tvUserName);
+        textViewName.setText(sPref.getString(sPref.KEY_USER_NAME, getString(R.string.prompt_name)));
+        //sPref.
         /*cardView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
             @Override
             public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
@@ -94,18 +104,26 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Bitmap bitmap = null;
+        Bitmap bitmap;
 
         switch (requestCode) {
             case 1:
                 if (resultCode == RESULT_OK) {
                     Uri selectedImage = data.getData();
+                    if (selectedImage == null) return;
                     try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            bitmap = ImageDecoder.decodeBitmap(
+                                    ImageDecoder.createSource(getContentResolver(), selectedImage));
+                        } else {
+                            bitmap = MediaStore.Images.Media.getBitmap(
+                                    getContentResolver(), selectedImage);
+                        }
+                        sPref.setImageStorage(this, bitmap);
+                        imageView.setImageBitmap(bitmap);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    imageView.setImageBitmap(bitmap);
                 }
                 break;
         }

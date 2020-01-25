@@ -56,6 +56,12 @@ public class KeystoreFirebase implements Keystore {
 
     }
 
+    private void setDatabase() {
+        if (mDatabase == null) {
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+        }
+    }
+
     public void runService() {
 
         mDatabase.addValueEventListener(new ValueEventListener() {
@@ -89,12 +95,14 @@ public class KeystoreFirebase implements Keystore {
 
     public void signIn(final Context context, final String email, final String password) {
 
+        final LoginActivity loginActivity = (LoginActivity) context;
+
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
 
-                        boolean successful = task.isSuccessful();
+                        final boolean successful = task.isSuccessful();
                         if (successful) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(LOG_TAG, "Авторизация пройдена");
@@ -104,8 +112,19 @@ public class KeystoreFirebase implements Keystore {
                             Log.d(LOG_TAG, "Авторизация не пройдена", task.getException());
                         }
 
-                        LoginActivity loginActivity = (LoginActivity) context;
-                        loginActivity.updateSignIn(successful);
+                        setDatabase();
+                        mDatabase.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                new User(dataSnapshot);
+                                loginActivity.updateSignIn(successful);
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                loginActivity.updateSignIn(successful);
+                            }
+                        });
                     }
                 });
     }
@@ -123,17 +142,8 @@ public class KeystoreFirebase implements Keystore {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(LOG_TAG, "Пользователь успешно зарегистрирован");
                             User user = new User(mAuth.getUid(), name, email, phone);
-                            if (mDatabase == null) {
-                                mDatabase = FirebaseDatabase.getInstance().getReference();
-                            }
+                            setDatabase();
                             mDatabase.child("users").child(mAuth.getUid()).setValue(user);
-                            KeystoreSharedPreferences myPref = App.getKeystoreSharedPreferens();
-                            myPref.setString(myPref.KEY_USER_NAME, name);
-                            myPref.setString(myPref.KEY_USER_EMAIL, email);
-                            myPref.setString(myPref.KEY_USER_PHONE, phone);
-                            myPref.setString(myPref.KEY_STATUS_EMAIL, "Новый");
-                            myPref.setString(myPref.KEY_STATUS_PHONE, "Новый");
-
                             sendVerificationEmail(null);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -147,10 +157,10 @@ public class KeystoreFirebase implements Keystore {
     }
 
     public void sendVerificationEmail(final Context context) {
-        FirebaseUser user = mAuth.getCurrentUser();
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
-        if (user != null) {
-            user.sendEmailVerification()
+        if (firebaseUser != null) {
+            firebaseUser.sendEmailVerification()
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -160,13 +170,14 @@ public class KeystoreFirebase implements Keystore {
                             boolean successful = task.isSuccessful();
 
                             if (successful) {
-                                status_email = "Отправлено";
+                                status_email = "Ожидается подтверждение";
                                 Log.w(LOG_TAG, "Письмо с подтверждением отправлено");
                             } else {
-                                status_email = "Не удалось отправить";
+                                status_email = "Необходимо подтверждение";
                                 Log.w(LOG_TAG, "Не удалось отправить письмо", task.getException());
                             }
 
+                            setDatabase();
                             mDatabase.child("users").child(mAuth.getUid()).child("statusEmail")
                                     .setValue(status_email);
                             myPref.setString(myPref.KEY_STATUS_EMAIL, status_email);
@@ -182,22 +193,23 @@ public class KeystoreFirebase implements Keystore {
 
     public void signOut() {
 
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        if (firebaseUser != null) {
             mAuth.signOut();
+            new User();
         }
     }
 
     public void reauthenticate(final String email, final String password) {
-        FirebaseUser user = mAuth.getCurrentUser();
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
-        if (user != null && (email.isEmpty() || password.isEmpty())) {
+        if (firebaseUser == null) return;
+        if (email.isEmpty() || password.isEmpty()) {
             mAuth.signOut();
             return;
-        } else if (email.isEmpty() || password.isEmpty()) return;
-
+        }
         AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-        user.reauthenticate(credential)
+        firebaseUser.reauthenticate(credential)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -246,6 +258,7 @@ public class KeystoreFirebase implements Keystore {
 
         public User() {
             // Default constructor
+            saveUserSharedPreferences();
         }
 
         public User(String id, String name, String email, String phone) {
@@ -253,8 +266,51 @@ public class KeystoreFirebase implements Keystore {
             this.name = name;
             this.email = email;
             this.phone = phone;
-            this.statusEmail = "Новый";
-            this.statusPhone = "Новый";
+            this.statusEmail = "Необходимо подтверждение";
+            this.statusPhone = "Необходимо подтверждение";
+
+            saveUserSharedPreferences();
+        }
+
+        public User(@NonNull DataSnapshot dataSnapshot) {
+
+            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+
+            if (firebaseUser == null) return;
+            if (!dataSnapshot.hasChild("users")) return;
+
+            DataSnapshot dataUsers = dataSnapshot.child("users");
+
+            this.id = firebaseUser.getUid();
+
+            if (!dataUsers.hasChild(id)) return;
+
+            DataSnapshot dataUser = dataUsers.child(id);
+
+            this.email = firebaseUser.getEmail();
+            this.name = dataUser.hasChild("name") ?
+                    dataUser.child("name").getValue(String.class) : "";
+            this.phone = dataUser.hasChild("phone") ?
+                    dataUser.child("phone").getValue(String.class) : "";
+            this.statusEmail = dataUser.hasChild("statusEmail") ?
+                    dataUser.child("statusEmail").getValue(String.class) : "Необходимо подтверждение";
+            this.statusPhone = dataUser.hasChild("statusPhone") ?
+                    dataUser.child("statusPhone").getValue(String.class) : "Необходимо подтверждение";
+
+            saveUserSharedPreferences();
+        }
+
+        private void saveUserSharedPreferences() {
+
+            //if (id == null || email == null || id.isEmpty() || email.isEmpty()) return;
+
+            KeystoreSharedPreferences sPref = App.getKeystoreSharedPreferens();
+
+            sPref.setString(sPref.KEY_USER_NAME, name);
+            sPref.setString(sPref.KEY_USER_EMAIL, email);
+            sPref.setString(sPref.KEY_USER_PHONE, phone);
+            sPref.setString(sPref.KEY_STATUS_EMAIL, statusEmail);
+            sPref.setString(sPref.KEY_STATUS_PHONE, statusPhone);
         }
 
     }
