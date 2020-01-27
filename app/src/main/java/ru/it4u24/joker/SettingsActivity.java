@@ -6,9 +6,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.Guideline;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
@@ -17,7 +19,6 @@ import android.provider.MediaStore;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,7 +27,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import ru.tinkoff.decoro.MaskImpl;
 import ru.tinkoff.decoro.slots.PredefinedSlots;
@@ -67,7 +70,6 @@ public class SettingsActivity extends AppCompatActivity {
         tvStatusPhone.setText(sPref.getString(sPref.KEY_STATUS_PHONE, ""));
 
         etPhone = findViewById(R.id.etSettingPhone);
-        etPhone.setText(tvPhone.getText().toString());
         etPhone.setVisibility(View.GONE);
 
         boolean isEnabled = App.getKeystoreFirebaseAuth().isSignInUser();
@@ -161,17 +163,26 @@ public class SettingsActivity extends AppCompatActivity {
                             bitmap = ImageDecoder.decodeBitmap(
                                     ImageDecoder.createSource(getContentResolver(), selectedImage));
                         } else {
-                            bitmap = MediaStore.Images.Media.getBitmap(
-                                    getContentResolver(), selectedImage);
+                            bitmap = getBitmap(getContentResolver(), selectedImage);
                         }
                         sPref.setImageStorage(this, bitmap);
                         ivPhoto.setImageBitmap(bitmap);
                     } catch (IOException e) {
+                        Toast.makeText(getApplicationContext(),
+                                "Ошибка приложения!\nНеудалось загрузить фото", Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                     }
                 }
                 break;
         }
+    }
+
+    public static final Bitmap getBitmap(ContentResolver cr, Uri url)
+            throws FileNotFoundException, IOException {
+        InputStream input = cr.openInputStream(url);
+        Bitmap bitmap = BitmapFactory.decodeStream(input);
+        input.close();
+        return bitmap;
     }
 
     private void setEnabledObjects(boolean isEnabled) {
@@ -188,12 +199,11 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void setEdintingObjects() {
 
-        /*LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) btnEditing.getLayoutParams();
-        layoutParams.rightMargin = 0;*/
+        LinearLayout.MarginLayoutParams layoutParams = (LinearLayout.MarginLayoutParams) btnEditing.getLayoutParams();
+        layoutParams.rightMargin = 0;
 
         glButton.setGuidelinePercent(1);
         btnEditing.setText(getString(R.string.action_editing));
-        //btnEditing.setLayoutParams(layoutParams);
         btnCancel.setVisibility(View.GONE);
         etPhone.setVisibility(View.GONE);
         tvPhone.setVisibility(View.VISIBLE);
@@ -203,7 +213,6 @@ public class SettingsActivity extends AppCompatActivity {
         // Скрыть клавиатуру
         InputMethodManager keyboard = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-
     }
 
     public void onClickConfirmEmail(View view) {
@@ -225,14 +234,14 @@ public class SettingsActivity extends AppCompatActivity {
     public void onClickEditing(View view) {
 
         if (btnEditing.getText().toString() == getString(R.string.action_editing)) {
-            /*LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) btnEditing.getLayoutParams();
-            layoutParams.rightMargin = 0;*/
+            LinearLayout.MarginLayoutParams layoutParams = (LinearLayout.MarginLayoutParams) btnEditing.getLayoutParams();
+            layoutParams.rightMargin = 5;
 
             glButton.setGuidelinePercent((float) 0.5);
             btnEditing.setText(getString(R.string.action_saving));
-            //btnEditing.setLayoutParams(layoutParams);
             btnCancel.setVisibility(View.VISIBLE);
             etPhone.setVisibility(View.VISIBLE);
+            etPhone.setText(tvPhone.getText().toString());
             tvPhone.setVisibility(View.GONE);
         } else {
             tvPhone.setText(etPhone.getText().toString());
@@ -243,6 +252,7 @@ public class SettingsActivity extends AppCompatActivity {
      }
 
     public void onClickCancel(View view) {
+
         setEdintingObjects();
         hideKeyboard(view);
     }
@@ -252,7 +262,10 @@ public class SettingsActivity extends AppCompatActivity {
         KeystoreFirebase keystoreFirebase = App.getKeystoreFirebaseAuth();
         keystoreFirebase.signOut();
 
-        setEnabledObjects(false);
-        hideKeyboard(view);
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+        //setEnabledObjects(false);
+        //hideKeyboard(view);
     }
 }
