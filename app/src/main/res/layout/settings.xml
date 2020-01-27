@@ -34,6 +34,7 @@
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:src="@drawable/joker"
+        android:visibility="gone"
         app:civ_border_width="2dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -55,39 +56,44 @@
     <TextView
         android:id="@+id/tvUserEmail"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="44dp"
         android:background="@android:drawable/alert_light_frame"
         android:gravity="center"
         android:text="TextView"
-        android:textSize="18sp"
         android:textStyle="bold"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvUserName" />
+        app:layout_constraintTop_toBottomOf="@+id/tvUserName"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/tvKontaktData"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorGray"
+        android:ellipsize="middle"
+        android:gravity="center"
+        android:singleLine="true"
+        android:text="@string/title_kontakt_date"
+        android:textAllCaps="true"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewLineStart" />
 
     <View
-        android:id="@+id/view"
+        android:id="@+id/viewLineStart"
         android:layout_width="wrap_content"
         android:layout_height="1dp"
+        android:layout_marginTop="16dp"
         android:background="@android:color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvUserEmail" />
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ellipsize="middle"
-        android:singleLine="true"
-        android:text="TextView"
-        android:textSize="18sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view" />
-
     <LinearLayout
-        android:id="@+id/linearLayout2"
+        android:id="@+id/linearLayoutSettings"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:divider="@drawable/separator"
@@ -96,90 +102,274 @@
         android:showDividers="middle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4">
+        app:layout_constraintTop_toBottomOf="@+id/tvKontaktData">
 
         <LinearLayout
+            android:id="@+id/linearLayoutEmail"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="match_parent"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/textView5"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:text="Почта"
-                android:textColor="@android:color/black"
-                android:textSize="18sp" />
-
             <LinearLayout
+                android:id="@+id/linearLayoutEmail2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/textView6"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:layout_marginRight="8dp"
-                    android:text="TextView"
-                    android:textSize="18sp" />
+                android:orientation="vertical"
+                tools:ignore="UselessParent">
 
                 <LinearLayout
+                    android:id="@+id/linearLayoutEmail3"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="right"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/textView7"
+                        android:id="@+id/tvSettingEmailHeadline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="10dp"
+                        android:text="@string/title_email"
+                        android:textColor="@android:color/black"
+                        android:textSize="18sp"
+                        tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+                    <TextView
+                        android:id="@+id/tvSettingEmail"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:layout_marginRight="8dp"
+                        android:layout_weight="1"
+                        android:gravity="right"
+                        android:singleLine="true"
+                        android:text="name@email.ru"
+                        android:textSize="18sp"
+                        tools:ignore="HardcodedText,RtlHardcoded" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linearLayoutEmail4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvSettingStatusEmail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:layout_marginRight="10dp"
+                        android:paddingLeft="10dp"
                         android:text="Необходимо подтверждение"
                         android:textColor="@color/colorBlue"
-                        android:textStyle="italic" />
+                        android:textStyle="italic"
+                        tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry" />
 
-                    <TextView
-                        android:id="@+id/textView8"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:id="@+id/linearLayoutEmail5"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginRight="8dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:lineSpacingExtra="10sp"
-                        android:text="Подтвердить"
-                        android:textColor="@android:color/holo_red_dark"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                        android:gravity="right"
+                        android:orientation="horizontal"
+                        tools:ignore="RtlHardcoded">
+
+                        <TextView
+                            android:id="@+id/tvSettingConfirmEmail"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="right|center_vertical"
+                            android:layout_marginRight="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="right"
+                            android:lineSpacingExtra="10sp"
+                            android:onClick="onClickConfirmEmail"
+                            android:text="@string/action_confirm"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:visibility="invisible" />
+
+                    </LinearLayout>
+
                 </LinearLayout>
 
             </LinearLayout>
 
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/linearLayoutPhone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:id="@+id/linearLayoutPhone2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                tools:ignore="UselessParent">
+
+                <LinearLayout
+                    android:id="@+id/linearLayoutPhone3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvSettingPhoneHeadline"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:paddingLeft="10dp"
+                        android:text="@string/prompt_phone"
+                        android:textColor="@android:color/black"
+                        android:textSize="18sp"
+                        tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+                    <LinearLayout
+                        android:id="@+id/linearLayoutPhone4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:orientation="horizontal"
+                        tools:ignore="RtlHardcoded">
+
+                        <TextView
+                            android:id="@+id/tvSettingPhone"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="right|center_vertical"
+                            android:layout_marginRight="8dp"
+                            android:layout_weight="1"
+                            android:gravity="right"
+                            android:singleLine="true"
+                            android:text="+7 (123) 456-789-01"
+                            android:textSize="18sp"
+                            android:visibility="visible"
+                            tools:ignore="HardcodedText,RtlHardcoded" />
+
+                        <EditText
+                            android:id="@+id/etSettingPhone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@android:drawable/editbox_background_normal"
+                            android:digits="0123456789+- ()"
+                            android:ems="10"
+                            android:gravity="center_vertical"
+                            android:hint="@string/prompt_phone"
+                            android:inputType="phone"
+                            android:text="+7 (123) 456-789-01"
+                            tools:ignore="Autofill,HardcodedText,RtlHardcoded" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linearLayoutPhone5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvSettingStatusPhone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginRight="10dp"
+                        android:paddingLeft="10dp"
+                        android:text="Необходимо подтверждение"
+                        android:textColor="@color/colorBlue"
+                        android:textStyle="italic"
+                        tools:ignore="HardcodedText,RtlHardcoded,RtlSymmetry" />
+
+                    <LinearLayout
+                        android:id="@+id/linearLayoutPhone6"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="right"
+                        android:orientation="horizontal"
+                        tools:ignore="RtlHardcoded">
+
+                        <TextView
+                            android:id="@+id/tvSettingConfirmPhone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="right|center_vertical"
+                            android:layout_marginRight="8dp"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="right"
+                            android:lineSpacingExtra="10sp"
+                            android:onClick="onClickConfirmPhone"
+                            android:text="@string/action_confirm"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            tools:ignore="RtlHardcoded" />
+
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
 
-    <!-- <TextView
-        android:id="@+id/tvUserNameValue"
+    <Button
+        android:id="@+id/btnEditing"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:text="Имя"
-        android:textSize="18sp" />
+        android:background="@color/colorGray"
+        android:onClick="onClickEditing"
+        android:text="@string/action_editing"
+        android:textColor="@android:color/holo_red_dark"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/glButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayoutSettings" />
 
-    <TextView
-        android:id="@+id/textViewSettings"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/glButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/settings"
-        android:textSize="24sp" />-->
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/colorGray"
+        android:onClick="onClickCancel"
+        android:text="@android:string/cancel"
+        android:textColor="@android:color/holo_red_dark"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btnEditing"
+        app:layout_constraintEnd_toEndOf="@+id/btnExit"
+        app:layout_constraintStart_toStartOf="@+id/glButton" />
+
+    <View
+        android:id="@+id/viewLineEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:background="@android:color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnEditing" />
+
+    <Button
+        android:id="@+id/btnExit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="@color/colorGray"
+        android:onClick="onClickExit"
+        android:text="@string/action_sign_out"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/viewLineEnd" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.Guideline;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
@@ -15,50 +17,93 @@ import android.provider.MediaStore;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 
+import ru.tinkoff.decoro.MaskImpl;
+import ru.tinkoff.decoro.slots.PredefinedSlots;
+import ru.tinkoff.decoro.watchers.FormatWatcher;
+import ru.tinkoff.decoro.watchers.MaskFormatWatcher;
+
 public class SettingsActivity extends AppCompatActivity {
 
-    private ImageView imageView;
+    CardView cvPhoto;
+    private ImageView ivPhoto;
     private KeystoreSharedPreferences sPref;
+    private TextView tvStatusEmail, tvStatusPhone, tvConfirmEmail, tvPhone, tvConfirmPhone;
+    private EditText etPhone;
+    private Button btnEditing, btnCancel, btnExit;
+    private Guideline glButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
-        imageView = findViewById(R.id.ivPhoto);
-        CardView cardView = findViewById(R.id.cvPhoto);
-        registerForContextMenu(cardView);
+        ivPhoto = findViewById(R.id.ivPhoto);
+        cvPhoto = findViewById(R.id.cvPhoto);
+        registerForContextMenu(cvPhoto);
 
         sPref = App.getKeystoreSharedPreferens();
-        sPref.loadImageFromStorage(imageView, R.drawable.joker);
+        sPref.loadImageFromStorage(ivPhoto, R.drawable.joker);
 
-        TextView textViewName = findViewById(R.id.tvUserName);
-        textViewName.setText(sPref.getString(sPref.KEY_USER_NAME, getString(R.string.prompt_name)));
-        //sPref.
-        /*cardView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-            @Override
-            public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-             }
-        });*/
-        cardView.setOnClickListener(new View.OnClickListener() {
+        TextView tvName = findViewById(R.id.tvUserName);
+        tvName.setText(sPref.getString(sPref.KEY_USER_NAME, getString(R.string.prompt_name)));
+        TextView tvEmail = findViewById(R.id.tvSettingEmail);
+        tvEmail.setText(sPref.getString(sPref.KEY_USER_EMAIL, ""));
+        tvStatusEmail = findViewById(R.id.tvSettingStatusEmail);
+        tvStatusEmail.setText(sPref.getString(sPref.KEY_STATUS_EMAIL, ""));
+        tvPhone = findViewById(R.id.tvSettingPhone);
+        tvPhone.setText(sPref.getString(sPref.KEY_USER_PHONE, ""));
+        tvStatusPhone = findViewById(R.id.tvSettingStatusPhone);
+        tvStatusPhone.setText(sPref.getString(sPref.KEY_STATUS_PHONE, ""));
+
+        etPhone = findViewById(R.id.etSettingPhone);
+        etPhone.setText(tvPhone.getText().toString());
+        etPhone.setVisibility(View.GONE);
+
+        boolean isEnabled = App.getKeystoreFirebaseAuth().isSignInUser();
+
+        tvConfirmEmail = findViewById(R.id.tvSettingConfirmEmail);
+        tvConfirmPhone = findViewById(R.id.tvSettingConfirmPhone);
+
+        glButton = findViewById(R.id.glButton);
+        glButton.setGuidelinePercent(1);
+
+        btnEditing = findViewById(R.id.btnEditing);
+        btnCancel = findViewById(R.id.btnCancel);
+        btnCancel.setVisibility(View.GONE);
+        btnExit = findViewById(R.id.btnExit);
+
+        setEnabledObjects(isEnabled);
+
+        cvPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "Выбран фото", Toast.LENGTH_SHORT).show();
             }
         });
-        cardView.setOnLongClickListener(new View.OnLongClickListener() {
+        cvPhoto.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 Toast.makeText(getApplicationContext(), "Выбрано меню", Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
+
+        MaskImpl mask = MaskImpl.createTerminated(PredefinedSlots.RUS_PHONE_NUMBER);
+        mask.setHideHardcodedHead(true);
+        FormatWatcher formatWatcher = new MaskFormatWatcher(mask);
+        formatWatcher.installOn(etPhone);
+
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             cardView.setOnContextClickListener(new View.OnContextClickListener() {
                 @Override
@@ -94,7 +139,7 @@ public class SettingsActivity extends AppCompatActivity {
                 break;
             case 2:
                 Toast.makeText(getApplicationContext(), "Выбрано меню Удалить фото", Toast.LENGTH_SHORT).show();
-                imageView.setImageResource(R.drawable.joker);
+                ivPhoto.setImageResource(R.drawable.joker);
                 break;
         }
         return super.onContextItemSelected(item);
@@ -120,12 +165,94 @@ public class SettingsActivity extends AppCompatActivity {
                                     getContentResolver(), selectedImage);
                         }
                         sPref.setImageStorage(this, bitmap);
-                        imageView.setImageBitmap(bitmap);
+                        ivPhoto.setImageBitmap(bitmap);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
                 break;
         }
+    }
+
+    private void setEnabledObjects(boolean isEnabled) {
+        int viewVisibility = isEnabled ? View.VISIBLE : View.INVISIBLE;
+
+        cvPhoto.setEnabled(isEnabled);
+
+        tvConfirmEmail.setVisibility(viewVisibility);
+        tvConfirmPhone.setVisibility(viewVisibility);
+
+        btnEditing.setEnabled(isEnabled);
+        btnExit.setEnabled(isEnabled);
+    }
+
+    private void setEdintingObjects() {
+
+        /*LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) btnEditing.getLayoutParams();
+        layoutParams.rightMargin = 0;*/
+
+        glButton.setGuidelinePercent(1);
+        btnEditing.setText(getString(R.string.action_editing));
+        //btnEditing.setLayoutParams(layoutParams);
+        btnCancel.setVisibility(View.GONE);
+        etPhone.setVisibility(View.GONE);
+        tvPhone.setVisibility(View.VISIBLE);
+    }
+
+    private void hideKeyboard(View view) {
+        // Скрыть клавиатуру
+        InputMethodManager keyboard = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+    }
+
+    public void onClickConfirmEmail(View view) {
+
+        sPref.setString(sPref.KEY_STATUS_EMAIL, "Ожидается подтверждение");
+        tvStatusEmail.setText(sPref.getString(sPref.KEY_STATUS_EMAIL, ""));
+        Toast.makeText(this, "Запрос на подтверждение отправлен на электронную почту",
+                Toast.LENGTH_LONG).show();
+    }
+
+    public void onClickConfirmPhone(View view) {
+
+        sPref.setString(sPref.KEY_STATUS_PHONE, "Ожидается подтверждение");
+        tvStatusPhone.setText(sPref.getString(sPref.KEY_STATUS_PHONE, ""));
+        Toast.makeText(this, "Запрос на подтверждение отправлен на телефон",
+                Toast.LENGTH_LONG).show();
+    }
+
+    public void onClickEditing(View view) {
+
+        if (btnEditing.getText().toString() == getString(R.string.action_editing)) {
+            /*LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) btnEditing.getLayoutParams();
+            layoutParams.rightMargin = 0;*/
+
+            glButton.setGuidelinePercent((float) 0.5);
+            btnEditing.setText(getString(R.string.action_saving));
+            //btnEditing.setLayoutParams(layoutParams);
+            btnCancel.setVisibility(View.VISIBLE);
+            etPhone.setVisibility(View.VISIBLE);
+            tvPhone.setVisibility(View.GONE);
+        } else {
+            tvPhone.setText(etPhone.getText().toString());
+            setEdintingObjects();
+        }
+
+        hideKeyboard(view);
+     }
+
+    public void onClickCancel(View view) {
+        setEdintingObjects();
+        hideKeyboard(view);
+    }
+
+    public void onClickExit(View view) {
+
+        KeystoreFirebase keystoreFirebase = App.getKeystoreFirebaseAuth();
+        keystoreFirebase.signOut();
+
+        setEnabledObjects(false);
+        hideKeyboard(view);
     }
 }
