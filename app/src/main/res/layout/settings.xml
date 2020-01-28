@@ -25,7 +25,7 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
             android:visibility="visible"
-            app:srcCompat="@drawable/joker"
+            app:srcCompat="@mipmap/ic_joker_foreground"
             tools:ignore="ContentDescription" />
     </androidx.cardview.widget.CardView>
 
@@ -50,6 +50,25 @@
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cvPhoto" />
+
+    <EditText
+        android:id="@+id/etUserName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@android:drawable/checkbox_off_background"
+        android:ems="10"
+        android:enabled="false"
+        android:gravity="center"
+        android:inputType="textPersonName"
+        android:text="@string/prompt_name"
+        android:textColor="?attr/colorPrimaryDark"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cvPhoto" />
 
@@ -190,7 +209,7 @@
                             android:textColor="@android:color/holo_red_dark"
                             android:textSize="20sp"
                             android:textStyle="bold"
-                            android:visibility="invisible" />
+                            android:visibility="visible" />
 
                     </LinearLayout>
 

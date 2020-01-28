@@ -42,9 +42,10 @@ public class SettingsActivity extends AppCompatActivity {
     private ImageView ivPhoto;
     private KeystoreSharedPreferences sPref;
     private TextView tvStatusEmail, tvStatusPhone, tvConfirmEmail, tvPhone, tvConfirmPhone;
-    private EditText etPhone;
+    private EditText etPhone, etName;
     private Button btnEditing, btnCancel, btnExit;
     private Guideline glButton;
+    private String name;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,19 +57,23 @@ public class SettingsActivity extends AppCompatActivity {
         registerForContextMenu(cvPhoto);
 
         sPref = App.getKeystoreSharedPreferens();
-        sPref.loadImageFromStorage(ivPhoto, R.drawable.joker);
+        sPref.loadImageFromStorage(ivPhoto, R.mipmap.ic_joker_foreground);//drawable.joker
 
-        TextView tvName = findViewById(R.id.tvUserName);
-        tvName.setText(sPref.getString(sPref.KEY_USER_NAME, getString(R.string.prompt_name)));
+        name = sPref.getString(sPref.KEY_USER_NAME, getString(R.string.prompt_name));
+        String statusEmail = sPref.getString(sPref.KEY_STATUS_EMAIL, "");
+        //TextView tvName = findViewById(R.id.tvUserName);
+        //tvName.setText();
         TextView tvEmail = findViewById(R.id.tvSettingEmail);
         tvEmail.setText(sPref.getString(sPref.KEY_USER_EMAIL, ""));
         tvStatusEmail = findViewById(R.id.tvSettingStatusEmail);
-        tvStatusEmail.setText(sPref.getString(sPref.KEY_STATUS_EMAIL, ""));
+        tvStatusEmail.setText(statusEmail);
         tvPhone = findViewById(R.id.tvSettingPhone);
         tvPhone.setText(sPref.getString(sPref.KEY_USER_PHONE, ""));
         tvStatusPhone = findViewById(R.id.tvSettingStatusPhone);
         tvStatusPhone.setText(sPref.getString(sPref.KEY_STATUS_PHONE, ""));
 
+        etName = findViewById(R.id.etUserName);
+        etName.setText(name);
         etPhone = findViewById(R.id.etSettingPhone);
         etPhone.setVisibility(View.GONE);
 
@@ -84,6 +89,10 @@ public class SettingsActivity extends AppCompatActivity {
         btnCancel = findViewById(R.id.btnCancel);
         btnCancel.setVisibility(View.GONE);
         btnExit = findViewById(R.id.btnExit);
+
+        if (statusEmail.equals("Ожидается подтверждение")) {
+            tvConfirmEmail.setText("Повторить");
+        }
 
         setEnabledObjects(isEnabled);
 
@@ -205,6 +214,8 @@ public class SettingsActivity extends AppCompatActivity {
         glButton.setGuidelinePercent(1);
         btnEditing.setText(getString(R.string.action_editing));
         btnCancel.setVisibility(View.GONE);
+        etName.setEnabled(false);
+        //etName.setTextColor(R.attr.colorPrimaryDark);
         etPhone.setVisibility(View.GONE);
         tvPhone.setVisibility(View.VISIBLE);
     }
@@ -240,10 +251,13 @@ public class SettingsActivity extends AppCompatActivity {
             glButton.setGuidelinePercent((float) 0.5);
             btnEditing.setText(getString(R.string.action_saving));
             btnCancel.setVisibility(View.VISIBLE);
+            etName.setEnabled(true);
+            //etName.setTextColor(R.attr.editTextColor);
             etPhone.setVisibility(View.VISIBLE);
             etPhone.setText(tvPhone.getText().toString());
             tvPhone.setVisibility(View.GONE);
         } else {
+            name = etName.getText().toString();
             tvPhone.setText(etPhone.getText().toString());
             setEdintingObjects();
         }
@@ -253,6 +267,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void onClickCancel(View view) {
 
+        etName.setText(name);
         setEdintingObjects();
         hideKeyboard(view);
     }
