@@ -27,6 +27,9 @@ public class KeystoreSharedPreferences implements Keystore {
     public final String KEY_USER_PHOTO = "userPhoto";
     public final String KEY_STATUS_EMAIL = "userStatusEmail";
     public final String KEY_STATUS_PHONE = "userStatusPhone";
+    public final String STATUS_CONFIRMATION_NEEDED = "Необходимо подтверждение";
+    public final String STATUS_CONFIRMATION_PENDING = "Ожидается подтверждение";
+    public final String STATUS_CONFIRMED= "Подтверждено";
     private final String USER_IMAGE_NAME = "userphoto.jpg";
 
     public KeystoreSharedPreferences(SharedPreferences sharedPreferences) {
@@ -74,6 +77,7 @@ public class KeystoreSharedPreferences implements Keystore {
 
     public void setImageStorage(Context context, String key,
                                 Bitmap bitmapImage, String nameImage) throws IOException {
+
         ContextWrapper cw = new ContextWrapper(context);
         File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
         File file = new File(directory, nameImage);

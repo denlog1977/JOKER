@@ -57,7 +57,7 @@ public class SettingsActivity extends AppCompatActivity {
         registerForContextMenu(cvPhoto);
 
         sPref = App.getKeystoreSharedPreferens();
-        sPref.loadImageFromStorage(ivPhoto, R.mipmap.ic_joker_foreground);//drawable.joker
+        sPref.loadImageFromStorage(ivPhoto, R.mipmap.ic_joker_foreground);//R.drawable.joker
 
         name = sPref.getString(sPref.KEY_USER_NAME, getString(R.string.prompt_name));
         String statusEmail = sPref.getString(sPref.KEY_STATUS_EMAIL, "");
@@ -78,6 +78,7 @@ public class SettingsActivity extends AppCompatActivity {
         etPhone.setVisibility(View.GONE);
 
         boolean isEnabled = App.getKeystoreFirebaseAuth().isSignInUser();
+        boolean isEnabledEmail = true;
 
         tvConfirmEmail = findViewById(R.id.tvSettingConfirmEmail);
         tvConfirmPhone = findViewById(R.id.tvSettingConfirmPhone);
@@ -90,11 +91,21 @@ public class SettingsActivity extends AppCompatActivity {
         btnCancel.setVisibility(View.GONE);
         btnExit = findViewById(R.id.btnExit);
 
-        if (statusEmail.equals("Ожидается подтверждение")) {
-            tvConfirmEmail.setText("Повторить");
+        if (statusEmail.equals(sPref.STATUS_CONFIRMATION_PENDING)) {
+            KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
+            if (keystoreFirebaseAuth.isEmailVerified()) {
+                sPref.setString(sPref.KEY_STATUS_EMAIL, sPref.STATUS_CONFIRMED);
+                tvStatusEmail.setText(sPref.STATUS_CONFIRMED);
+                tvConfirmEmail.setVisibility(View.INVISIBLE);
+            } else
+                tvConfirmEmail.setText("Повторить");
+        } else if (statusEmail.equals(sPref.STATUS_CONFIRMED)) {
+            isEnabledEmail = false;
+        } else {
+            tvConfirmEmail.setText("Отправить");
         }
 
-        setEnabledObjects(isEnabled);
+        setEnabledObjects(isEnabled, isEnabledEmail);
 
         cvPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +145,7 @@ public class SettingsActivity extends AppCompatActivity {
             case R.id.cvPhoto:
                 menu.add(0, 1, 0, "Выбрать фото");
                 menu.add(0, 2, 0, "Удалить фото");
+                menu.add(0, 3, 0, "Отменить");
                 break;
         }
     }
@@ -143,14 +155,14 @@ public class SettingsActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case 1:
-                Toast.makeText(getApplicationContext(), "Выбрано меню Выбрать фото", Toast.LENGTH_SHORT).show();
                 Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
                 photoPickerIntent.setType("image/*");
                 startActivityForResult(photoPickerIntent, 1);
                 break;
             case 2:
-                Toast.makeText(getApplicationContext(), "Выбрано меню Удалить фото", Toast.LENGTH_SHORT).show();
-                ivPhoto.setImageResource(R.drawable.joker);
+                sPref.setString(sPref.KEY_USER_PHOTO, "");
+                ivPhoto.setImageResource(R.mipmap.ic_joker_foreground);//R.drawable.joker
+                Toast.makeText(getApplicationContext(), "Фото удалено", Toast.LENGTH_SHORT).show();
                 break;
         }
         return super.onContextItemSelected(item);
@@ -176,6 +188,7 @@ public class SettingsActivity extends AppCompatActivity {
                         }
                         sPref.setImageStorage(this, bitmap);
                         ivPhoto.setImageBitmap(bitmap);
+                        Toast.makeText(getApplicationContext(), "Фото установлено", Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         Toast.makeText(getApplicationContext(),
                                 "Ошибка приложения!\nНеудалось загрузить фото", Toast.LENGTH_SHORT).show();
@@ -186,20 +199,20 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    public static final Bitmap getBitmap(ContentResolver cr, Uri url)
-            throws FileNotFoundException, IOException {
+    public static final Bitmap getBitmap(ContentResolver cr, Uri url) throws NullPointerException, IOException {
         InputStream input = cr.openInputStream(url);
         Bitmap bitmap = BitmapFactory.decodeStream(input);
         input.close();
         return bitmap;
     }
 
-    private void setEnabledObjects(boolean isEnabled) {
+    private void setEnabledObjects(boolean isEnabled, boolean isEnabledEmail) {
         int viewVisibility = isEnabled ? View.VISIBLE : View.INVISIBLE;
+        int viewVisibilityEmail = isEnabled && isEnabledEmail ? View.VISIBLE : View.INVISIBLE;
 
         cvPhoto.setEnabled(isEnabled);
 
-        tvConfirmEmail.setVisibility(viewVisibility);
+        tvConfirmEmail.setVisibility(viewVisibilityEmail);
         tvConfirmPhone.setVisibility(viewVisibility);
 
         btnEditing.setEnabled(isEnabled);
@@ -228,8 +241,13 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void onClickConfirmEmail(View view) {
 
-        sPref.setString(sPref.KEY_STATUS_EMAIL, "Ожидается подтверждение");
+        KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
+        keystoreFirebaseAuth.sendVerificationEmail(null);
+
+        sPref.setString(sPref.KEY_STATUS_EMAIL, sPref.STATUS_CONFIRMATION_PENDING);
         tvStatusEmail.setText(sPref.getString(sPref.KEY_STATUS_EMAIL, ""));
+        tvConfirmEmail.setVisibility(View.INVISIBLE);
+
         Toast.makeText(this, "Запрос на подтверждение отправлен на электронную почту",
                 Toast.LENGTH_LONG).show();
     }

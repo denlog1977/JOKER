@@ -243,6 +243,15 @@ public class KeystoreFirebase implements Keystore {
         return firebaseUser != null;
     }
 
+    public boolean isEmailVerified() {
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            firebaseUser.reload();
+            return firebaseUser.isEmailVerified();
+        } else
+            return false;
+    }
+
     private static boolean equally(String str1, String str2) {
         return str1 == null ? str2 == null : str1.equals(str2);
     }
