@@ -254,7 +254,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void onClickConfirmPhone(View view) {
 
-        sPref.setString(sPref.KEY_STATUS_PHONE, "Ожидается подтверждение");
+        sPref.setString(sPref.KEY_STATUS_PHONE, sPref.STATUS_CONFIRMATION_PENDING);
         tvStatusPhone.setText(sPref.getString(sPref.KEY_STATUS_PHONE, ""));
         Toast.makeText(this, "Запрос на подтверждение отправлен на телефон",
                 Toast.LENGTH_LONG).show();

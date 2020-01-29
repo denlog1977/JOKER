@@ -1,6 +1,7 @@
 package ru.it4u24.joker;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
@@ -8,16 +9,23 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.concurrent.TimeUnit;
 
 
 public class KeystoreFirebase implements Keystore {
@@ -191,6 +199,52 @@ public class KeystoreFirebase implements Keystore {
         }
     }
 
+    public void sendVerificationPhone(final Context context, String phoneNumber) {
+
+        if (isSignInUser()) {
+            PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks =
+                    new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+
+                        @Override
+                        public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+                            Log.d(LOG_TAG, "onVerificationCompleted:" + phoneAuthCredential);
+                        }
+
+                        @Override
+                        public void onVerificationFailed(FirebaseException e) {
+                            Log.d(LOG_TAG, "onVerificationFailed", e);
+
+                            if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                                // Неверный запрос
+                                // ...
+                                Log.d(LOG_TAG, getClass() + ":onVerificationFailed=Неверный запрос", e);
+                            } else if (e instanceof FirebaseTooManyRequestsException) {
+                                // Превышена квота SMS для проекта
+                                // ...
+                                Log.d(LOG_TAG, getClass() + ":onVerificationFailed=Превышена квота SMS для проекта", e);
+                            }
+
+                        }
+
+                        @Override
+                        public void onCodeSent(String verificationId, PhoneAuthProvider.ForceResendingToken token) {
+                            //super.onCodeSent(s, token);
+                            // Код подтверждения SMS был отправлен на указанный номер телефона, мы
+                            // теперь нужно попросить пользователя ввести код и затем создать учетные данные
+                            // путем объединения кода с идентификатором проверки.
+                            Log.d(LOG_TAG, "onCodeSent:" + verificationId);
+
+                            // Сохраняем идентификатор подтверждения и повторно отправляем токен, чтобы мы могли использовать их позже
+                            //mVerificationId = verificationId;
+                            //mResendToken = token;
+                        }
+                    };
+
+            PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 60, TimeUnit.SECONDS,
+                    (Activity) context, mCallbacks);
+        }
+    }
+
     public void signOut() {
 
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
@@ -229,8 +283,6 @@ public class KeystoreFirebase implements Keystore {
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser != null ) {
             firebaseUser.reload();
-            //String status_email_base =
-            //String stаtus_email = firebaseUser.isEmailVerified() ? "Подтвержден" : status_email_base;
             String token = firebaseUser.getIdToken(false).toString();
             Log.d(LOG_TAG,
                     "Пользователь вошел в систему как " + firebaseUser.getEmail() +
