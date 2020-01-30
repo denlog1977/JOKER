@@ -157,10 +157,11 @@ public class KeystoreFirebase implements Keystore {
                             // If sign in fails, display a message to the user.
                             Log.w(LOG_TAG, "Не прошла регистрация", task.getException());
                         }
-
-                        LoginActivity loginActivity = (LoginActivity) context;
-                        loginActivity.updateSignIn(successful);
-                    }
+                        if (context instanceof LoginActivity) {
+                            LoginActivity loginActivity = (LoginActivity) context;
+                            loginActivity.updateSignIn(successful);
+                        }
+                     }
                 });
     }
 
@@ -243,6 +244,44 @@ public class KeystoreFirebase implements Keystore {
             PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 60, TimeUnit.SECONDS,
                     (Activity) context, mCallbacks);
         }
+    }
+
+    private void verifyPhoneNumberWithCode(String verificationId, String code) {
+        // [START verify_with_code]
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
+        // [END verify_with_code]
+        signInWithPhoneAuthCredential(credential);
+    }
+
+    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(LOG_TAG, "signInWithCredential:success");
+
+                            FirebaseUser user = task.getResult().getUser();
+                            // [START_EXCLUDE]
+                            ////updateUI(STATE_SIGNIN_SUCCESS, user);
+                            // [END_EXCLUDE]
+                        } else {
+                            // Sign in failed, display a message and update the UI
+                            Log.d(LOG_TAG, "signInWithCredential:failure", task.getException());
+                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                                // The verification code entered was invalid
+                                // [START_EXCLUDE silent]
+                                ////mVerificationField.setError("Invalid code.");
+                                // [END_EXCLUDE]
+                            }
+                            // [START_EXCLUDE silent]
+                            // Update UI
+                            ////updateUI(STATE_SIGNIN_FAILED);
+                            // [END_EXCLUDE]
+                        }
+                    }
+                });
     }
 
     public void signOut() {
