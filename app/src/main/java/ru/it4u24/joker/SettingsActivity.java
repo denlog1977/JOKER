@@ -95,8 +95,10 @@ public class SettingsActivity extends AppCompatActivity {
             KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
             if (keystoreFirebaseAuth.isEmailVerified()) {
                 sPref.setString(sPref.KEY_STATUS_EMAIL, sPref.STATUS_CONFIRMED);
+                keystoreFirebaseAuth.setStatusEmail(sPref.STATUS_CONFIRMED);
                 tvStatusEmail.setText(sPref.STATUS_CONFIRMED);
                 tvConfirmEmail.setVisibility(View.INVISIBLE);
+                isEnabledEmail = false;
             } else
                 tvConfirmEmail.setText("Повторить");
         } else if (statusEmail.equals(sPref.STATUS_CONFIRMED)) {
@@ -254,9 +256,21 @@ public class SettingsActivity extends AppCompatActivity {
 
     public void onClickConfirmPhone(View view) {
 
-        sPref.setString(sPref.KEY_STATUS_PHONE, sPref.STATUS_CONFIRMATION_PENDING);
-        tvStatusPhone.setText(sPref.getString(sPref.KEY_STATUS_PHONE, ""));
-        Toast.makeText(this, "Запрос на подтверждение отправлен на телефон",
+        String phone = sPref.getString(sPref.KEY_USER_PHONE, "");
+        if (phone == null || phone.isEmpty()) return;
+        phone = phone.replace("(", "");
+        phone = phone.replace(")", "");
+        phone = phone.replace("-", "");
+        phone = phone.replace(" ", "");
+
+        KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
+        keystoreFirebaseAuth.sendVerificationPhone(this, phone);
+
+        EditText etPhoneCode = findViewById(R.id.etPhoneCode);
+        etPhoneCode.setVisibility(View.VISIBLE);
+        //sPref.setString(sPref.KEY_STATUS_PHONE, sPref.STATUS_CONFIRMATION_PENDING);
+        //tvStatusPhone.setText(sPref.getString(sPref.KEY_STATUS_PHONE, ""));
+        Toast.makeText(this, "Запрос на подтверждение отправлен на телефон: " + phone,
                 Toast.LENGTH_LONG).show();
     }
 

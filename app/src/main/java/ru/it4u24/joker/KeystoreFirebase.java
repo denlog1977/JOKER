@@ -186,9 +186,7 @@ public class KeystoreFirebase implements Keystore {
                                 Log.w(LOG_TAG, "Не удалось отправить письмо", task.getException());
                             }
 
-                            setDatabase();
-                            mDatabase.child("users").child(mAuth.getUid()).child("statusEmail")
-                                    .setValue(status_email);
+                            setStatusEmail(status_email);
                             myPref.setString(myPref.KEY_STATUS_EMAIL, status_email);
 
                             if (context != null) {
@@ -198,6 +196,11 @@ public class KeystoreFirebase implements Keystore {
                         }
                     });
         }
+    }
+
+    public void setStatusEmail(String status) {
+        setDatabase();
+        mDatabase.child("users").child(mAuth.getUid()).child("statusEmail").setValue(status);
     }
 
     public void sendVerificationPhone(final Context context, String phoneNumber) {
@@ -230,7 +233,7 @@ public class KeystoreFirebase implements Keystore {
                         @Override
                         public void onCodeSent(String verificationId, PhoneAuthProvider.ForceResendingToken token) {
                             //super.onCodeSent(s, token);
-                            // Код подтверждения SMS был отправлен на указанный номер телефона, мы
+                            // Код подтверждения SMS был отправлен на указанный номер телефона,
                             // теперь нужно попросить пользователя ввести код и затем создать учетные данные
                             // путем объединения кода с идентификатором проверки.
                             Log.d(LOG_TAG, "onCodeSent:" + verificationId);
@@ -267,7 +270,7 @@ public class KeystoreFirebase implements Keystore {
                             ////updateUI(STATE_SIGNIN_SUCCESS, user);
                             // [END_EXCLUDE]
                         } else {
-                            // Sign in failed, display a message and update the UI
+                            // Sign in success, update UI with the signed-in user's information
                             Log.d(LOG_TAG, "signInWithCredential:failure", task.getException());
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 // The verification code entered was invalid
