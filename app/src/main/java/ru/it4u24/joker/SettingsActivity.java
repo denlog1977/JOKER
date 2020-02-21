@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.Guideline;
+import androidx.fragment.app.DialogFragment;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -36,7 +37,7 @@ import ru.tinkoff.decoro.slots.PredefinedSlots;
 import ru.tinkoff.decoro.watchers.FormatWatcher;
 import ru.tinkoff.decoro.watchers.MaskFormatWatcher;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity implements NoticeDialogFragment.NoticeDialogListener {
 
     CardView cvPhoto;
     private ImageView ivPhoto;
@@ -263,8 +264,11 @@ public class SettingsActivity extends AppCompatActivity {
         phone = phone.replace("-", "");
         phone = phone.replace(" ", "");
 
-        KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
-        keystoreFirebaseAuth.sendVerificationPhone(this, phone);
+        //KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
+        //keystoreFirebaseAuth.sendVerificationPhone(this, phone);
+
+        DialogFragment dialog = new NoticeDialogFragment();
+        dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
 
         EditText etPhoneCode = findViewById(R.id.etPhoneCode);
         etPhoneCode.setVisibility(View.VISIBLE);
@@ -314,5 +318,16 @@ public class SettingsActivity extends AppCompatActivity {
         finish();
         //setEnabledObjects(false);
         //hideKeyboard(view);
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        Toast.makeText(this, " Код проверяется...",
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+
     }
 }
