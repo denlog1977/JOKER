@@ -2,7 +2,9 @@ package ru.it4u24.joker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.Guideline;
 import androidx.fragment.app.DialogFragment;
@@ -16,7 +18,6 @@ import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,7 +29,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -53,6 +53,10 @@ public class SettingsActivity extends AppCompatActivity implements NoticeDialogF
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         ivPhoto = findViewById(R.id.ivPhoto);
         cvPhoto = findViewById(R.id.cvPhoto);
         registerForContextMenu(cvPhoto);
@@ -62,8 +66,8 @@ public class SettingsActivity extends AppCompatActivity implements NoticeDialogF
 
         name = sPref.getString(sPref.KEY_USER_NAME, getString(R.string.prompt_name));
         String statusEmail = sPref.getString(sPref.KEY_STATUS_EMAIL, "");
-        //TextView tvName = findViewById(R.id.tvUserName);
-        //tvName.setText();
+        String statusPhone = sPref.getString(sPref.KEY_STATUS_PHONE, "");
+
         TextView tvEmail = findViewById(R.id.tvSettingEmail);
         tvEmail.setText(sPref.getString(sPref.KEY_USER_EMAIL, ""));
         tvStatusEmail = findViewById(R.id.tvSettingStatusEmail);
@@ -71,7 +75,7 @@ public class SettingsActivity extends AppCompatActivity implements NoticeDialogF
         tvPhone = findViewById(R.id.tvSettingPhone);
         tvPhone.setText(sPref.getString(sPref.KEY_USER_PHONE, ""));
         tvStatusPhone = findViewById(R.id.tvSettingStatusPhone);
-        tvStatusPhone.setText(sPref.getString(sPref.KEY_STATUS_PHONE, ""));
+        tvStatusPhone.setText(statusPhone);
 
         etName = findViewById(R.id.etUserName);
         etName.setText(name);
@@ -80,6 +84,7 @@ public class SettingsActivity extends AppCompatActivity implements NoticeDialogF
 
         boolean isEnabled = App.getKeystoreFirebaseAuth().isSignInUser();
         boolean isEnabledEmail = true;
+        boolean isEnabledPhone = !statusPhone.equals(sPref.STATUS_CONFIRMED);
 
         tvConfirmEmail = findViewById(R.id.tvSettingConfirmEmail);
         tvConfirmPhone = findViewById(R.id.tvSettingConfirmPhone);
@@ -108,7 +113,7 @@ public class SettingsActivity extends AppCompatActivity implements NoticeDialogF
             tvConfirmEmail.setText("Отправить");
         }
 
-        setEnabledObjects(isEnabled, isEnabledEmail);
+        setEnabledObjects(isEnabled, isEnabledEmail, isEnabledPhone);
 
         cvPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -202,6 +207,112 @@ public class SettingsActivity extends AppCompatActivity implements NoticeDialogF
         }
     }
 
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog, String code) {
+
+        KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
+        keystoreFirebaseAuth.verifyPhoneNumberWithCode(this, code);
+
+        //sPref.setString(sPref.KEY_STATUS_PHONE, sPref.STATUS_CONFIRMATION_PENDING);
+        //tvStatusPhone.setText(sPref.getString(sPref.KEY_STATUS_PHONE, ""));
+
+        Toast.makeText(this, "Проверяется код " + code,
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+        dialog.dismiss();
+    }
+
+    public void onClickConfirmEmail(View view) {
+
+        KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
+        keystoreFirebaseAuth.sendVerificationEmail(null);
+
+        sPref.setString(sPref.KEY_STATUS_EMAIL, sPref.STATUS_CONFIRMATION_PENDING);
+        tvStatusEmail.setText(sPref.getString(sPref.KEY_STATUS_EMAIL, ""));
+        tvConfirmEmail.setVisibility(View.INVISIBLE);
+
+        Toast.makeText(this, "Запрос на подтверждение отправлен на электронную почту",
+                Toast.LENGTH_LONG).show();
+    }
+
+    public void onClickConfirmPhone(View view) {
+
+        String phone = sPref.getString(sPref.KEY_USER_PHONE, "");
+        if (phone == null || phone.isEmpty()) return;
+        phone = phone.replace("(", "");
+        phone = phone.replace(")", "");
+        phone = phone.replace("-", "");
+        phone = phone.replace(" ", "");
+
+        KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
+        keystoreFirebaseAuth.sendVerificationPhone(this, phone);
+        Toast.makeText(this, "Запрос на подтверждение отправлен на телефон: " + phone,
+                Toast.LENGTH_LONG).show();
+
+        DialogFragment dialog = new NoticeDialogFragment();
+        dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
+    }
+
+    public void onClickEditing(View view) {
+
+        if (btnEditing.getText().toString() == getString(R.string.action_editing)) {
+            LinearLayout.MarginLayoutParams layoutParams = (LinearLayout.MarginLayoutParams) btnEditing.getLayoutParams();
+            layoutParams.rightMargin = 5;
+
+            glButton.setGuidelinePercent((float) 0.5);
+            btnEditing.setText(getString(R.string.action_saving));
+            btnCancel.setVisibility(View.VISIBLE);
+            etName.setEnabled(true);
+            //etName.setTextColor(R.attr.editTextColor);
+            etPhone.setVisibility(View.VISIBLE);
+            etPhone.setText(tvPhone.getText().toString());
+            tvPhone.setVisibility(View.GONE);
+        } else {
+            name = etName.getText().toString();
+            String phone = etPhone.getText().toString();
+            tvPhone.setText(phone);
+
+            KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
+            keystoreFirebaseAuth.setSetting("name", name);
+            keystoreFirebaseAuth.setSetting("phone", phone);
+
+            if (!phone.equals(sPref.getString(sPref.KEY_USER_PHONE, ""))) {
+                keystoreFirebaseAuth.setSetting("statusPhone", sPref.STATUS_CONFIRMATION_NEEDED);
+                sPref.setString(sPref.KEY_STATUS_PHONE, sPref.STATUS_CONFIRMATION_NEEDED);
+                tvConfirmPhone.setVisibility(View.VISIBLE);
+            }
+
+            sPref.setString(sPref.KEY_USER_NAME, name);
+            sPref.setString(sPref.KEY_USER_PHONE, phone);
+
+            setEdintingObjects();
+        }
+
+        hideKeyboard(view);
+    }
+
+    public void onClickCancel(View view) {
+
+        etName.setText(name);
+        setEdintingObjects();
+        hideKeyboard(view);
+    }
+
+    public void onClickExit(View view) {
+
+        KeystoreFirebase keystoreFirebase = App.getKeystoreFirebaseAuth();
+        keystoreFirebase.signOut();
+
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+        //setEnabledObjects(false);
+        //hideKeyboard(view);
+    }
+
     public static final Bitmap getBitmap(ContentResolver cr, Uri url) throws NullPointerException, IOException {
         InputStream input = cr.openInputStream(url);
         Bitmap bitmap = BitmapFactory.decodeStream(input);
@@ -209,14 +320,14 @@ public class SettingsActivity extends AppCompatActivity implements NoticeDialogF
         return bitmap;
     }
 
-    private void setEnabledObjects(boolean isEnabled, boolean isEnabledEmail) {
-        int viewVisibility = isEnabled ? View.VISIBLE : View.INVISIBLE;
+    private void setEnabledObjects(boolean isEnabled, boolean isEnabledEmail, boolean isEnabledPhone) {
         int viewVisibilityEmail = isEnabled && isEnabledEmail ? View.VISIBLE : View.INVISIBLE;
+        int viewVisibilityPhone = isEnabled && isEnabledPhone ? View.VISIBLE : View.INVISIBLE;
 
         cvPhoto.setEnabled(isEnabled);
 
         tvConfirmEmail.setVisibility(viewVisibilityEmail);
-        tvConfirmPhone.setVisibility(viewVisibility);
+        tvConfirmPhone.setVisibility(viewVisibilityPhone);
 
         btnEditing.setEnabled(isEnabled);
         btnExit.setEnabled(isEnabled);
@@ -242,92 +353,13 @@ public class SettingsActivity extends AppCompatActivity implements NoticeDialogF
         keyboard.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    public void onClickConfirmEmail(View view) {
+    public void updatePhone() {
+        String statusPhone = sPref.getString(sPref.KEY_STATUS_PHONE, "");
+        boolean isEnabledPhone = !statusPhone.equals(sPref.STATUS_CONFIRMED);
+        int viewVisibilityPhone = isEnabledPhone ? View.VISIBLE : View.INVISIBLE;
 
-        KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
-        keystoreFirebaseAuth.sendVerificationEmail(null);
-
-        sPref.setString(sPref.KEY_STATUS_EMAIL, sPref.STATUS_CONFIRMATION_PENDING);
-        tvStatusEmail.setText(sPref.getString(sPref.KEY_STATUS_EMAIL, ""));
-        tvConfirmEmail.setVisibility(View.INVISIBLE);
-
-        Toast.makeText(this, "Запрос на подтверждение отправлен на электронную почту",
-                Toast.LENGTH_LONG).show();
-    }
-
-    public void onClickConfirmPhone(View view) {
-
-        String phone = sPref.getString(sPref.KEY_USER_PHONE, "");
-        if (phone == null || phone.isEmpty()) return;
-        phone = phone.replace("(", "");
-        phone = phone.replace(")", "");
-        phone = phone.replace("-", "");
-        phone = phone.replace(" ", "");
-
-        //KeystoreFirebase keystoreFirebaseAuth = App.getKeystoreFirebaseAuth();
-        //keystoreFirebaseAuth.sendVerificationPhone(this, phone);
-
-        DialogFragment dialog = new NoticeDialogFragment();
-        dialog.show(getSupportFragmentManager(), "NoticeDialogFragment");
-
-        EditText etPhoneCode = findViewById(R.id.etPhoneCode);
-        etPhoneCode.setVisibility(View.VISIBLE);
-        //sPref.setString(sPref.KEY_STATUS_PHONE, sPref.STATUS_CONFIRMATION_PENDING);
-        //tvStatusPhone.setText(sPref.getString(sPref.KEY_STATUS_PHONE, ""));
-        Toast.makeText(this, "Запрос на подтверждение отправлен на телефон: " + phone,
-                Toast.LENGTH_LONG).show();
-    }
-
-    public void onClickEditing(View view) {
-
-        if (btnEditing.getText().toString() == getString(R.string.action_editing)) {
-            LinearLayout.MarginLayoutParams layoutParams = (LinearLayout.MarginLayoutParams) btnEditing.getLayoutParams();
-            layoutParams.rightMargin = 5;
-
-            glButton.setGuidelinePercent((float) 0.5);
-            btnEditing.setText(getString(R.string.action_saving));
-            btnCancel.setVisibility(View.VISIBLE);
-            etName.setEnabled(true);
-            //etName.setTextColor(R.attr.editTextColor);
-            etPhone.setVisibility(View.VISIBLE);
-            etPhone.setText(tvPhone.getText().toString());
-            tvPhone.setVisibility(View.GONE);
-        } else {
-            name = etName.getText().toString();
-            tvPhone.setText(etPhone.getText().toString());
-            setEdintingObjects();
-        }
-
-        hideKeyboard(view);
-     }
-
-    public void onClickCancel(View view) {
-
-        etName.setText(name);
-        setEdintingObjects();
-        hideKeyboard(view);
-    }
-
-    public void onClickExit(View view) {
-
-        KeystoreFirebase keystoreFirebase = App.getKeystoreFirebaseAuth();
-        keystoreFirebase.signOut();
-
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
-        finish();
-        //setEnabledObjects(false);
-        //hideKeyboard(view);
-    }
-
-    @Override
-    public void onDialogPositiveClick(DialogFragment dialog) {
-        Toast.makeText(this, " Код проверяется...",
-                Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onDialogNegativeClick(DialogFragment dialog) {
-
+        tvPhone.setText(sPref.getString(sPref.KEY_USER_PHONE, ""));
+        tvStatusPhone.setText(statusPhone);
+        tvConfirmPhone.setVisibility(viewVisibilityPhone);
     }
 }

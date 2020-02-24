@@ -35,6 +35,7 @@ public class KeystoreFirebase implements Keystore {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private final String LOG_TAG = "myLogs";
+    private String mVerificationId;
 
     public KeystoreFirebase(FirebaseAuth mAuth) {
         this.mAuth = mAuth;
@@ -179,11 +180,11 @@ public class KeystoreFirebase implements Keystore {
                             boolean successful = task.isSuccessful();
 
                             if (successful) {
-                                status_email = "Ожидается подтверждение";
-                                Log.w(LOG_TAG, "Письмо с подтверждением отправлено");
+                                status_email = myPref.STATUS_CONFIRMATION_PENDING;
+                                Log.d(LOG_TAG, "Письмо с подтверждением отправлено");
                             } else {
-                                status_email = "Необходимо подтверждение";
-                                Log.w(LOG_TAG, "Не удалось отправить письмо", task.getException());
+                                status_email = myPref.STATUS_CONFIRMATION_NEEDED;
+                                Log.d(LOG_TAG, "Не удалось отправить письмо", task.getException());
                             }
 
                             setStatusEmail(status_email);
@@ -201,6 +202,16 @@ public class KeystoreFirebase implements Keystore {
     public void setStatusEmail(String status) {
         setDatabase();
         mDatabase.child("users").child(mAuth.getUid()).child("statusEmail").setValue(status);
+    }
+
+    public void setStatusPhone(String status) {
+        setDatabase();
+        mDatabase.child("users").child(mAuth.getUid()).child("statusPhone").setValue(status);
+    }
+
+    public void setSetting(String key, String value) {
+        setDatabase();
+        mDatabase.child("users").child(mAuth.getUid()).child(key).setValue(value);
     }
 
     public void sendVerificationPhone(final Context context, String phoneNumber) {
@@ -239,7 +250,7 @@ public class KeystoreFirebase implements Keystore {
                             Log.d(LOG_TAG, "onCodeSent:" + verificationId);
 
                             // Сохраняем идентификатор подтверждения и повторно отправляем токен, чтобы мы могли использовать их позже
-                            //mVerificationId = verificationId;
+                            mVerificationId = verificationId;
                             //mResendToken = token;
                         }
                     };
@@ -249,39 +260,39 @@ public class KeystoreFirebase implements Keystore {
         }
     }
 
-    private void verifyPhoneNumberWithCode(String verificationId, String code) {
-        // [START verify_with_code]
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
-        // [END verify_with_code]
-        signInWithPhoneAuthCredential(credential);
+    public void verifyPhoneNumberWithCode(final Context context, String code) {
+
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVerificationId, code);
+        signInWithPhoneAuthCredential(context, credential);
     }
 
-    private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
+    private void signInWithPhoneAuthCredential(final Context context, PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
+                            // Проверка выполнена
                             Log.d(LOG_TAG, "signInWithCredential:success");
 
-                            FirebaseUser user = task.getResult().getUser();
-                            // [START_EXCLUDE]
-                            ////updateUI(STATE_SIGNIN_SUCCESS, user);
-                            // [END_EXCLUDE]
+                            //FirebaseUser user = task.getResult().getUser();
+                            KeystoreSharedPreferences sPref = App.getKeystoreSharedPreferens();
+                            sPref.setString(sPref.KEY_STATUS_PHONE, sPref.STATUS_CONFIRMED);
+                            setStatusPhone(sPref.STATUS_CONFIRMED);
+
+                            if (context instanceof SettingsActivity) {
+                                SettingsActivity settingsActivity = (SettingsActivity) context;
+                                settingsActivity.updatePhone();
+                            }
+
                         } else {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(LOG_TAG, "signInWithCredential:failure", task.getException());
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 // The verification code entered was invalid
-                                // [START_EXCLUDE silent]
-                                ////mVerificationField.setError("Invalid code.");
-                                // [END_EXCLUDE]
+                                //mVerificationField.setError("Invalid code.");
                             }
-                            // [START_EXCLUDE silent]
-                            // Update UI
-                            ////updateUI(STATE_SIGNIN_FAILED);
-                            // [END_EXCLUDE]
+
                         }
                     }
                 });

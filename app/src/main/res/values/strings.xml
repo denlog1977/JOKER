@@ -26,4 +26,5 @@
     <string name="login_failed">"Авторизация не удалась"</string>
     <string name="chooseDate">"Выберите дату"</string>
     <string name="chooseRc">"Выберите автоцентр"</string>
+    <string name="title_activity_basic">BasicActivity</string>
 </resources>
