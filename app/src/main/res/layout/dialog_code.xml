@@ -15,7 +15,7 @@
         android:ems="10"
         android:inputType="number"
         android:maxLength="8"
-        tools:ignore="Autofill" />
+        tools:ignore="Autofill,LabelFor" />
 
     <TextView
         android:id="@+id/tvTimer"
@@ -25,5 +25,6 @@
         android:text="0:08"
         android:textAlignment="center"
         android:textColor="@android:color/black"
-        android:textSize="24sp" />
+        android:textSize="24sp"
+        tools:ignore="HardcodedText" />
 </LinearLayout>
