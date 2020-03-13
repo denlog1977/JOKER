@@ -56,6 +56,7 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
 
         String[][] resultString = new String[0][0];
         String query = strings[0];
+        //String tipQuery = strings[1];
         String LOGIN = myPref.getLogin(myPref.KEY_LOG_SERVICE1C);
         String PASSWORD = myPref.getPassword(myPref.KEY_PAS_SERVICE1C);
 
@@ -70,6 +71,8 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
                 e.printStackTrace();
                 ERROR = e.getMessage();
                 Log.d(LOG_TAG, "JSONObject error: " + ERROR);
+                resultString = new String[1][1];
+                resultString[0][0] = result;
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -25,6 +25,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 
@@ -154,9 +157,10 @@ public class KeystoreFirebase implements Keystore {
                             setDatabase();
                             mDatabase.child("users").child(mAuth.getUid()).setValue(user);
                             sendVerificationEmail(null);
+                            registrationSite(context, email, password, name, phone);
                         } else {
                             // If sign in fails, display a message to the user.
-                            Log.w(LOG_TAG, "Не прошла регистрация", task.getException());
+                            Log.d(LOG_TAG, "Не прошла регистрация", task.getException());
                         }
                         if (context instanceof LoginActivity) {
                             LoginActivity loginActivity = (LoginActivity) context;
@@ -164,6 +168,32 @@ public class KeystoreFirebase implements Keystore {
                         }
                      }
                 });
+    }
+
+    public void registrationSite(final Context context, final String email, final String password,
+                                 final String name, final String phone) {
+        try {
+            JsonParser jp = new JsonParser();
+            jp.addObject("id", mAuth.getUid());
+            jp.addObject("name", name);
+            jp.addObject("email", email);
+            jp.addObject("phone", phone);
+            jp.addObject("pas", password);
+            String jpResult = jp.getResult();
+
+            HttpClient httpClient = new HttpClient();
+            httpClient.setURL("http://yourport.ru/xxx");
+            httpClient.execute(jpResult);
+            String[][] result = httpClient.get();
+            Log.d("myLogs", "Длина результата httpClient=" + result.length);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public void sendVerificationEmail(final Context context) {
@@ -355,6 +385,10 @@ public class KeystoreFirebase implements Keystore {
             return firebaseUser.isEmailVerified();
         } else
             return false;
+    }
+
+    public String getID() {
+        return mAuth.getUid();
     }
 
     private static boolean equally(String str1, String str2) {

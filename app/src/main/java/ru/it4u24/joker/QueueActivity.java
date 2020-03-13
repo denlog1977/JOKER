@@ -205,8 +205,9 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
 
                 String jpResult = jp.getResult();
 
-                byte[] bytes = jpResult.getBytes();
-                String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                String encodequery = jpResult;
+                /*byte[] bytes = jpResult.getBytes();
+                String encodequery = Base64.encodeToString(bytes, Base64.NO_WRAP);*/
                 Log.d(LOG_TAG, "encodeString = " + encodequery);
 
                 //byte[] bytess = Base64.decode(encodequery, Base64.NO_WRAP);
@@ -214,6 +215,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
                 //Log.d(LOG_TAG, "decodeString = " + decodestring);
 
                 httpClient = new HttpClient();
+                httpClient.setURL("http://yourport.ru/xxx");//"https://kamaz.ddns.net:10100/testut/hs/ExchangeTFK/query"
                 httpClient.execute(encodequery);//query
                 Log.d(LOG_TAG, "Ожидание результата HttpClient");
                 result = httpClient.get();

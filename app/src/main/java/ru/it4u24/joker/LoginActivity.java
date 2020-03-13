@@ -19,6 +19,10 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.json.JSONException;
+
+import java.util.concurrent.ExecutionException;
+
 import ru.tinkoff.decoro.MaskImpl;
 import ru.tinkoff.decoro.parser.PhoneNumberUnderscoreSlotsParser;
 import ru.tinkoff.decoro.parser.UnderscoreDigitSlotsParser;
@@ -34,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextInputEditText passwordEditText, nameEditText, phoneEditText;
     private TextInputLayout nameTextInputLayout, phoneTextInputLayout;
     private ProgressBar loadingProgressBar;
-    private Button loginButton;
+    private Button loginButton, btnSait;
     private boolean isUserNameEmail;
     boolean isRegistration, isOut;
 
@@ -54,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         nameTextInputLayout = findViewById(R.id.tilName);
         phoneTextInputLayout = findViewById(R.id.tilPhone);
         nameTextView = findViewById(R.id.tvName);
+        btnSait = findViewById(R.id.btnSait);
 
         KeystoreFirebase keystoreFirebaseUser = App.getKeystoreFirebaseAuth();
 
@@ -101,6 +106,40 @@ public class LoginActivity extends AppCompatActivity {
                     keystoreFirebase.registration(LoginActivity.this, email, password, name, phone);
                 } else {
                     keystoreFirebase.signIn(LoginActivity.this, email, password);
+                }
+            }
+        });
+
+        btnSait.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Скрыть клавиатуру
+                InputMethodManager keyboard = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                keyboard.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+                try {
+                    KeystoreFirebase keystoreFirebaseUser = App.getKeystoreFirebaseAuth();
+                    KeystoreSharedPreferences sPref = App.getKeystoreSharedPreferens();
+
+                    JsonParser jp = new JsonParser();
+                    jp.addObject("id", keystoreFirebaseUser.getID());
+                    jp.addObject("name", sPref.getString(sPref.KEY_USER_NAME, ""));
+                    jp.addObject("email", sPref.getString(sPref.KEY_USER_EMAIL, ""));
+                    jp.addObject("phone",sPref.getString(sPref.KEY_USER_PHONE, ""));
+                    jp.addObject("pas", passwordEditText.getText().toString());
+                    String jpResult = jp.getResult();
+
+                    HttpClient httpClient = new HttpClient();
+                    httpClient.setURL("http://yourport.ru/xxx");
+                    httpClient.execute(jpResult);
+                    String[][] result = httpClient.get();
+                    Log.d("myLogs", "Длина результата httpClient=" + result.length);
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
         });
