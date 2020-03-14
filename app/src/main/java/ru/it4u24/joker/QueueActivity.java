@@ -216,7 +216,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
 
                 httpClient = new HttpClient();
                 httpClient.setURL("http://yourport.ru/xxx");//"https://kamaz.ddns.net:10100/testut/hs/ExchangeTFK/query"
-                httpClient.execute(encodequery);//query
+                httpClient.execute("GetList"+name, encodequery);//query
                 Log.d(LOG_TAG, "Ожидание результата HttpClient");
                 result = httpClient.get();
                 Log.d(LOG_TAG, "Длина результата httpClient=" + result.length);

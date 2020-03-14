@@ -55,14 +55,14 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
         KeystoreSharedPreferences myPref = App.getKeystoreSharedPreferens();
 
         String[][] resultString = new String[0][0];
-        String query = strings[0];
-        //String tipQuery = strings[1];
+        String tipQuery = strings[0];
+        String query = strings[1];
         String LOGIN = myPref.getLogin(myPref.KEY_LOG_SERVICE1C);
         String PASSWORD = myPref.getPassword(myPref.KEY_PAS_SERVICE1C);
 
         try {
             Authenticate(LOGIN, PASSWORD);
-            String result = run(query);
+            String result = run(tipQuery, query);
             if (!ERROR.isEmpty()) return resultString;
             try {
                 JsonParser jsonParser = new JsonParser();
@@ -121,10 +121,10 @@ public class HttpClient extends AsyncTask<String, Integer, String[][]> {
                 .build();
     }
 
-    private String run(String query) {
+    private String run(String tipQuery, String query) {
 
         RequestBody formBody = new FormBody.Builder()
-                .add("GetList", query)
+                .add(tipQuery, query) //"GetList", query
                 //.add("g", "test")
                 .build();
 

@@ -183,7 +183,7 @@ public class KeystoreFirebase implements Keystore {
 
             HttpClient httpClient = new HttpClient();
             httpClient.setURL("http://yourport.ru/xxx");
-            httpClient.execute(jpResult);
+            httpClient.execute("RegistrationUser", jpResult);
             String[][] result = httpClient.get();
             Log.d("myLogs", "Длина результата httpClient=" + result.length);
         } catch (ExecutionException e) {
