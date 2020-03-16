@@ -70,7 +70,7 @@ public class QueueActivity extends AppCompatActivity implements DatePickerDialog
         String mDateTxt = "Дата: " + day + "." + (month + 1) + "." + year;
         String mon = (month < 9 ? "0" : "") + (month + 1);
         String dy = (day < 10 ? "0" : "") + day;
-        mDateFormatText = "" + year + "" + mon + "" + dy;
+        mDateFormatText = "" + year + "-" + mon + "-" + dy;
         Toast.makeText(this, mDateTxt, Toast.LENGTH_LONG).show();
         mChooseDate.setText(mDateTxt);
 
